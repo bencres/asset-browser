@@ -1,2 +1,2 @@
-# Asset Browser
-A tool to bring an artist's assets into any content creation application.
+# Universal Asset Browser
+A tool for digital creators to unify asset access and management across content creation applications. 
