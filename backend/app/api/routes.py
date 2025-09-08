@@ -31,7 +31,7 @@ def create_asset(asset: AssetBase, db: Session = Depends(database.get_db())):
 def update_asset(asset_id: int, asset: AssetBase, db: Session = Depends(database.get_db())):
     db_asset = db.query(models.Asset).filter(models.Asset.id == asset_id).first()
     if db_asset is None:
-        raise HTTPException(status_code=404, detail=f"Asset with id `{asset_id} not found")
+        raise HTTPException(status_code=404, detail=f"Asset with id `{asset_id}` not found")
 
     db_asset.name = asset.name
     db_asset.description = asset.description
@@ -39,4 +39,15 @@ def update_asset(asset_id: int, asset: AssetBase, db: Session = Depends(database
 
     db.commit()
     db.refresh(db_asset)
+    return db_asset
+
+
+@router.delete("/{asset_id}", response_model=AssetResponse)
+def delete_asset(asset_id: int, db: Session = Depends(database.get_db())):
+    db_asset = db.query(models.Asset).filter(models.Asset.id == asset_id).first()
+    if db_asset is None:
+        raise HTTPException(status_code=404, detail=f"Asset with id `{asset_id}` not found")
+
+    db.delete(db_asset)
+    db.commit()
     return db_asset
