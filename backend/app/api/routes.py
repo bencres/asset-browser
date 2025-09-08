@@ -25,3 +25,18 @@ def create_asset(asset: AssetBase, db: Session = Depends(database.get_db())):
     db.commit()
     db.refresh(db_asset)
     return db_asset
+
+
+@router.put("/{asset_id}", response_model=AssetResponse)
+def update_asset(asset_id: int, asset: AssetBase, db: Session = Depends(database.get_db())):
+    db_asset = db.query(models.Asset).filter(models.Asset.id == asset_id).first()
+    if db_asset is None:
+        raise HTTPException(status_code=404, detail=f"Asset with id `{asset_id} not found")
+
+    db_asset.name = asset.name
+    db_asset.description = asset.description
+    db_asset.file_path = asset.file_path
+
+    db.commit()
+    db.refresh(db_asset)
+    return db_asset
