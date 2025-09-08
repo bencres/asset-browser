@@ -1,7 +1,7 @@
 """API routes for browser CRUD operations."""
 
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from ..data_access import models, database
 from ..api.schemas import AssetBase, AssetResponse
@@ -18,7 +18,7 @@ def get_all_assets(db: Session = Depends(database.get_db)):
     return db.query(models.Asset).all()
 
 
-@router.post("/", response_model=AssetResponse)
+@router.post("/", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
 def create_asset(asset: AssetBase, db: Session = Depends(database.get_db)):
     db_asset = models.Asset(name=asset.name, description=asset.description, file_path=asset.file_path)
     db.add(db_asset)
