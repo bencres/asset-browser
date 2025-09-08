@@ -13,6 +13,11 @@ router = APIRouter(
 )
 
 
+@router.get("/", response_model=AssetResponse)
+def get_all_assets(db: Session = Depends(database.get_db())):
+    return db.query(models.Asset).all()
+
+
 @router.post("/", response_model=AssetResponse)
 def create_asset(asset: AssetBase, db: Session = Depends(database.get_db())):
     db_asset = models.Asset(name=asset.name, description=asset.description, file_path=asset.file_path)
