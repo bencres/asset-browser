@@ -13,13 +13,13 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=AssetResponse)
-def get_all_assets(db: Session = Depends(database.get_db())):
+@router.get("/", response_model=list[AssetResponse])
+def get_all_assets(db: Session = Depends(database.get_db)):
     return db.query(models.Asset).all()
 
 
 @router.post("/", response_model=AssetResponse)
-def create_asset(asset: AssetBase, db: Session = Depends(database.get_db())):
+def create_asset(asset: AssetBase, db: Session = Depends(database.get_db)):
     db_asset = models.Asset(name=asset.name, description=asset.description, file_path=asset.file_path)
     db.add(db_asset)
     db.commit()
@@ -28,7 +28,7 @@ def create_asset(asset: AssetBase, db: Session = Depends(database.get_db())):
 
 
 @router.put("/{asset_id}", response_model=AssetResponse)
-def update_asset(asset_id: int, asset: AssetBase, db: Session = Depends(database.get_db())):
+def update_asset(asset_id: int, asset: AssetBase, db: Session = Depends(database.get_db)):
     db_asset = db.query(models.Asset).filter(models.Asset.id == asset_id).first()
     if db_asset is None:
         raise HTTPException(status_code=404, detail=f"Asset with id `{asset_id}` not found")
@@ -43,7 +43,7 @@ def update_asset(asset_id: int, asset: AssetBase, db: Session = Depends(database
 
 
 @router.delete("/{asset_id}", response_model=AssetResponse)
-def delete_asset(asset_id: int, db: Session = Depends(database.get_db())):
+def delete_asset(asset_id: int, db: Session = Depends(database.get_db)):
     db_asset = db.query(models.Asset).filter(models.Asset.id == asset_id).first()
     if db_asset is None:
         raise HTTPException(status_code=404, detail=f"Asset with id `{asset_id}` not found")
