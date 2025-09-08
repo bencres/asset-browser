@@ -298,3 +298,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Asset Browser
+# Database files
+*.db
