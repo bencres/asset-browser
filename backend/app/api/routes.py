@@ -20,7 +20,7 @@ def get_all_assets(db: Session = Depends(database.get_db)):
 
 @router.post("/", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
 def create_asset(asset: AssetBase, db: Session = Depends(database.get_db)):
-    db_asset = models.Asset(name=asset.name, description=asset.description, file_path=asset.file_path)
+    db_asset = models.Asset(name=asset.name, description=asset.description, directory_path=asset.directory_path)
     db.add(db_asset)
     db.commit()
     db.refresh(db_asset)
@@ -35,7 +35,7 @@ def update_asset(asset_id: int, asset: AssetBase, db: Session = Depends(database
 
     db_asset.name = asset.name
     db_asset.description = asset.description
-    db_asset.file_path = asset.file_path
+    db_asset.directory_path = asset.directory_path
 
     db.commit()
     db.refresh(db_asset)

@@ -7,7 +7,8 @@ from typing import Optional
 class AssetBase(BaseModel):
     name: str
     description: Optional[str] = None
-    file_path: str
+    directory_path: str
+    preview_image_file_path: Optional[str] = None
 
 
 class AssetResponse(AssetBase):
