@@ -1,8 +1,8 @@
 """API routes for browser CRUD operations."""
-
-
+from typing import Dict
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from ..data_access import models, database
 from ..api.schemas import AssetBase, AssetResponse
 
@@ -51,3 +51,22 @@ def delete_asset(asset_id: int, db: Session = Depends(database.get_db)):
     db.delete(db_asset)
     db.commit()
     return db_asset
+
+@router.delete("/admin/clear-database",
+               status_code=status.HTTP_200_OK,
+               response_model=Dict[str, str])
+def clear_database(db: Session = Depends(database.get_db)):
+    try:
+        table_names = [table.name for table in models.Base.metadata.sorted_tables]
+        for table_name in reversed(table_names):
+            db.execute(text(f"DELETE FROM {table_name}"))
+
+        db.commit()
+
+        return {"message": "Database cleared successfully."}
+    except Exception as e:
+        db.rollback() # Rollback if any errors
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to clear database: {e}"
+        )
