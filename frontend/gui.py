@@ -4,9 +4,10 @@ import requests
 import pathlib
 
 from PySide6.QtCore import QModelIndex, Qt
-from PySide6.QtGui import QStandardItemModel, QStandardItem
+from PySide6.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QHBoxLayout, QTreeView, QSplitter, QLabel, QMessageBox
+    QApplication, QMainWindow, QHBoxLayout, QTreeView, QSplitter, QLabel, QMessageBox, QWidget, QGridLayout,
+    QVBoxLayout, QSizePolicy
 )
 
 BACKEND_URL = "http://127.0.0.1:8000"
@@ -119,6 +120,7 @@ class MainWindow(QMainWindow):
 
         self.tree.expandToDepth(0)
 
+
     def _i_was_clicked(self, idx: QModelIndex):
         self.label.setText(idx.data())
 
@@ -129,6 +131,38 @@ class MainWindow(QMainWindow):
         msg.setText(message)
         msg.setWindowTitle(title)
         msg.exec()
+
+
+
+class FileIconWidget(QWidget):
+    def __init__(self, pixmap: QPixmap, text: str):
+        super().__init__()
+        if len(text) > 10:
+            text = text[:7] + "..."
+        else:
+            text = text[:10]
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(2)
+
+        label_icon = QLabel()
+        label_icon.setPixmap(
+            pixmap.scaled(
+                96,
+                96,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
+        label_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        label_text = QLabel(text)
+        label_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label_text.setWordWrap(True)
+
+        layout.addWidget(label_icon)
+        layout.addWidget(label_text)
+
 
 
 
