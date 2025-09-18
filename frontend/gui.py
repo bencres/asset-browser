@@ -7,7 +7,7 @@ from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QHBoxLayout, QTreeView, QSplitter, QLabel, QMessageBox, QWidget, QGridLayout,
-    QVBoxLayout, QSizePolicy
+    QVBoxLayout, QSizePolicy, QScrollArea
 )
 
 BACKEND_URL = "http://127.0.0.1:8000"
@@ -19,8 +19,9 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Universal Asset Browser")
         self.resize(800, 600)
+        self.assets = self._get_assets()
         self._init_ui()
-        self._reload_tree()
+        self._reload_tree(self.assets)
 
     def _init_ui(self):
         main_widget = QSplitter()
@@ -32,11 +33,14 @@ class MainWindow(QMainWindow):
         self.tree.setModel(self.tree_model)
         self.tree.clicked.connect(self._i_was_clicked)
 
-        # Right side: temp
-        self.label = QLabel()
+        # Right side: grid of assets
+        self.grid = IconGrid()
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(self.grid)
 
         main_widget.addWidget(self.tree)
-        main_widget.addWidget(self.label)
+        main_widget.addWidget(self.grid)
         self.setCentralWidget(main_widget)
 
     def _get_assets(self):
@@ -50,79 +54,80 @@ class MainWindow(QMainWindow):
         except requests.exceptions.RequestException as e:
             self._display_message(f"Error loading assets: {e}", "API Error")
 
-    def _reload_tree(self):
+    def _reload_tree(self, assets):
         """
         Builds a hierarchical QStandardItemModel displaying the directory structure
-        and individual assets as leaves, based on 'directory_path' entries from assets.
+        and individual assets as leaves, based on 'file_path' entries from assets.
+        Stores asset data (dict) for file nodes and full path (str) for directory nodes
+        in Qt.UserRole.
         """
         self.tree_model.clear()
-        self.tree_model.setHorizontalHeaderLabels(['Directory Path'])
+        self.tree_model.setHorizontalHeaderLabels(['File Path'])
 
         root_node = self.tree_model.invisibleRootItem()
 
-        # Key: A tuple representing the full, normalized path to the directory (relative to asset root).
-        # Value: The QStandardItem instance for that directory.
+        # path_nodes dictionary:
+        # Key: A tuple representing the full, absolute path of a directory (e.g., ('/', 'Users', 'Me', 'project', 'my_assets'))
+        # Value: The QStandardItem instance corresponding to that directory in the tree.
         path_nodes = {}
 
-        assets = self._get_assets()
+        assets.sort(key=lambda a: a.get('directory_path', ''))  # Sort for consistent tree building
 
         for asset in assets:
             file_path_str = asset.get('directory_path', '')
             if not file_path_str:
-                # Handle assets with no path or empty path directly under the tree's root
                 item = QStandardItem(f"(No Path) {asset.get('name', 'Unnamed')}")
-                item.setData(asset, Qt.ItemDataRole.UserRole)
+                item.setData(asset, Qt.ItemDataRole.UserRole)  # Store the full asset dict
                 root_node.appendRow(item)
                 continue
 
             path = pathlib.Path(file_path_str)
             path_components = path.parts
 
-            # Extract the relevant path components relative to ROOT_ASSET_DIRECTORY
             display_components = []
+            full_path_for_key_prefix = ()  # Path components for the part leading up to/including ROOT_ASSET_DIRECTORY
+
             try:
                 root_dir_index = path_components.index(ROOT_ASSET_DIRECTORY)
-                display_components = list(path_components[root_dir_index + 1:])
+                full_path_for_key_prefix = path_components[
+                    :root_dir_index + 1]
+                display_components = list(
+                    path_components[root_dir_index + 1:])
             except ValueError:
+                # If ROOT_ASSET_DIRECTORY is not found, treat the whole path as relevant.
+                full_path_for_key_prefix = path_components
                 display_components = list(path_components)
 
             if not display_components:
-                # Happens when asset is directly in ROOT_ASSET_DIRECTORY or the path was just a bare root
-                item_text = asset.get('name', os.path.basename(file_path_str))  # Fallback to filename
+                item_text = asset.get('name', os.path.basename(file_path_str))
                 item = QStandardItem(item_text)
                 item.setData(asset, Qt.ItemDataRole.UserRole)
                 root_node.appendRow(item)
                 continue
 
-            # Build the nested directory structure and add the asset
             current_parent_item = root_node
-            current_path_key_parts = ()  # Stores the absolute path components for dictionary key lookup
+            # This tuple will build up the full absolute path of the current directory/file component being processed.
+            # It's used as the key for path_nodes and the data for directory items.
+            current_absolute_path_key_tuple = full_path_for_key_prefix
 
             for i, component in enumerate(display_components):
-                current_path_key_parts = current_path_key_parts + (component,)
+                current_absolute_path_key_tuple = current_absolute_path_key_tuple + (component,)
 
-                is_last_component = (i == len(display_components) - 1)
+                if current_absolute_path_key_tuple not in path_nodes:
+                    dir_item = QStandardItem(component)
+                    dir_path_string = str(pathlib.Path(*current_absolute_path_key_tuple))
+                    dir_item.setData(dir_path_string, Qt.ItemDataRole.UserRole)
 
-                looks_like_file = '.' in component and is_last_component
+                    current_parent_item.appendRow(dir_item)
+                    path_nodes[current_absolute_path_key_tuple] = dir_item
 
-                if is_last_component and looks_like_file:
-                    item_text = component
-                    asset_item = QStandardItem(item_text)
-                    asset_item.setData(asset, Qt.ItemDataRole.UserRole)
-                    current_parent_item.appendRow(asset_item)
-                else:
-                    if current_path_key_parts not in path_nodes:
-                        dir_item = QStandardItem(component)
-                        current_parent_item.appendRow(dir_item)
-                        path_nodes[current_path_key_parts] = dir_item
-
-                    current_parent_item = path_nodes[current_path_key_parts]
+                current_parent_item = path_nodes[current_absolute_path_key_tuple]
 
         self.tree.expandToDepth(0)
 
 
     def _i_was_clicked(self, idx: QModelIndex):
-        self.label.setText(idx.data())
+        print(idx.data(Qt.ItemDataRole.UserRole))
 
 
     @staticmethod
@@ -162,7 +167,6 @@ class FileIconWidget(QWidget):
 
         layout.addWidget(label_icon)
         layout.addWidget(label_text)
-
 
 
 class IconGrid(QWidget):
