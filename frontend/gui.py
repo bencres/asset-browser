@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         self.tree_model = QStandardItemModel()
         self.tree_model.setHorizontalHeaderLabels(['File Path'])
         self.tree.setModel(self.tree_model)
-        self.tree.clicked.connect(self._i_was_clicked)
+        self.tree.clicked.connect(self.on_tree_item_selected)
 
         # Right side: grid of assets
         self.grid = IconGrid()
@@ -126,8 +126,63 @@ class MainWindow(QMainWindow):
         self.tree.expandToDepth(0)
 
 
-    def _i_was_clicked(self, idx: QModelIndex):
-        print(idx.data(Qt.ItemDataRole.UserRole))
+    def on_tree_item_selected(self, idx: QModelIndex):
+        dir_path = idx.data(Qt.ItemDataRole.UserRole)
+        self._populate_icon_grid_from_directory(str(dir_path))
+
+    def _populate_icon_grid_from_directory(self, directory_path: str):
+        """
+        Scans a given directory and its immediate subdirectories for 'preview' images.
+        Populates the IconGrid with FileIconWidgets for each subdirectory that contains a preview.
+        """
+        # WARNING: paths in db currently do not have the first slash, making them all not valid paths
+        # TODO: FIX THIS.
+        directory_path = "/" + directory_path
+        self.grid.clear()  # Clear any existing icons
+
+        found_previews = []  # List to store (QPixmap, subdirectory_name) tuples
+
+        # Check if the provided path actually exists and is a directory
+        if not os.path.isdir(directory_path):
+            self._display_message(f"Directory not found: {directory_path}", "Error")
+            return
+
+        # Traverse the immediate subdirectories of the given directory_path
+        for root, dirs, files in os.walk(directory_path):
+            # Only process the immediate subdirectories of the starting path for this iteration
+            if root != directory_path and not root.startswith(directory_path + os.sep):
+                # This breaks if we want to scan deeper than just immediate children
+                # For "immediate subdirectories" as requested, we process one level deep
+                continue
+
+            # Check files in the current directory (or its subdirs if we walked deeper)
+            for d in dirs:  # Iterate through each subdirectory within the current `root`
+                subdir_full_path = os.path.join(root, d)
+                preview_image_path = None
+
+                # Look for a preview file directly inside this subdirectory
+                for ext in ['.jpg', '.webp', '.png', '.jpeg']:  # Common image extensions
+                    potential_preview = os.path.join(subdir_full_path, 'preview' + ext)
+                    if os.path.isfile(potential_preview):
+                        preview_image_path = potential_preview
+                        break  # Found a preview, move to the next subdirectory
+
+                if preview_image_path:
+                    # Found a preview, create a QPixmap
+                    pixmap = QPixmap(preview_image_path)
+                    if not pixmap.isNull():
+                        found_previews.append((pixmap, d))  # d is the subdirectory name
+                    else:
+                        # Handle cases where the image file exists but is corrupted/invalid
+                        print(f"Warning: Could not load preview image for {subdir_full_path}: {preview_image_path}")
+                        # You might append a placeholder pixmap here if desired
+                        found_previews.append((QPixmap(), d))  # Empty pixmap will trigger placeholder in FileIconWidget
+                # else: No preview found for this subdirectory, skip it
+
+        self.grid.add_file_widgets(found_previews)
+        if not found_previews:
+            self._display_message(f"No previews found in '{directory_path}' or its subdirectories.", "No Previews")
+
 
 
     @staticmethod
