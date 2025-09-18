@@ -7,7 +7,7 @@ from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QHBoxLayout, QTreeView, QSplitter, QLabel, QMessageBox, QWidget, QGridLayout,
-    QVBoxLayout, QSizePolicy, QScrollArea
+    QVBoxLayout, QSizePolicy, QScrollArea, QCheckBox
 )
 
 BACKEND_URL = "http://127.0.0.1:8000"
@@ -24,7 +24,15 @@ class MainWindow(QMainWindow):
         self._reload_tree(self.assets)
 
     def _init_ui(self):
-        main_widget = QSplitter()
+        main_widget = QWidget()
+        main_layout = QVBoxLayout()
+
+        # Top: checkbox for recursive search or not
+        self.cb_recursive_dir_search = QCheckBox("Search Only Current Directory")
+        main_layout.addWidget(self.cb_recursive_dir_search)
+
+        # Bottom: splitter between tree and grid
+        splitter = QSplitter()
 
         # Left side: tree view of assets
         self.tree = QTreeView()
@@ -32,15 +40,18 @@ class MainWindow(QMainWindow):
         self.tree_model.setHorizontalHeaderLabels(['File Path'])
         self.tree.setModel(self.tree_model)
         self.tree.clicked.connect(self.on_tree_item_selected)
+        splitter.addWidget(self.tree)
 
         # Right side: grid of assets
         self.grid = IconGrid()
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(self.grid)
+        splitter.addWidget(self.grid)
 
-        main_widget.addWidget(self.tree)
-        main_widget.addWidget(self.grid)
+        # Central widget
+        main_layout.addWidget(splitter)
+        main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
 
     def _get_assets(self):
@@ -137,7 +148,8 @@ class MainWindow(QMainWindow):
         """
         # WARNING: paths in db currently do not have the first slash, making them all not valid paths
         # TODO: FIX THIS.
-        directory_path = "/" + directory_path
+        if directory_path[0] != "/":
+            directory_path = "/" + directory_path
         self.grid.clear()  # Clear any existing icons
 
         found_previews = []  # List to store (QPixmap, subdirectory_name) tuples
@@ -178,6 +190,10 @@ class MainWindow(QMainWindow):
                         # You might append a placeholder pixmap here if desired
                         found_previews.append((QPixmap(), d))  # Empty pixmap will trigger placeholder in FileIconWidget
                 # else: No preview found for this subdirectory, skip it
+
+            if self.cb_recursive_dir_search.checkState() == Qt.CheckState.Checked:
+                if root == directory_path:
+                    break
 
         self.grid.add_file_widgets(found_previews)
         if not found_previews:
