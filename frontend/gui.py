@@ -213,13 +213,14 @@ class MainWindow(QMainWindow):
 class FileIconWidget(QWidget):
     def __init__(self, pixmap: QPixmap, text: str):
         super().__init__()
-        if len(text) > 10:
-            text = text[:7] + "..."
+        self.setStyleSheet("background-color: #222222;")
+        if len(text) > 14:
+            text = text[:11] + "..."
         else:
-            text = text[:10]
+            text = text[:13]
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(2)
+        layout.setContentsMargins(1, 1, 1, 1)
+        layout.setSpacing(0)
 
         label_icon = QLabel()
         label_icon.setPixmap(
@@ -241,12 +242,11 @@ class FileIconWidget(QWidget):
 
 
 class IconGrid(QWidget):
-
     def __init__(self):
         super().__init__()
         self.grid = QGridLayout(self)
-        self.grid.setSpacing(2)
-        self.grid.setContentsMargins(2, 2, 2, 2)
+        self.grid.setSpacing(1)
+        self.grid.setContentsMargins(1, 1, 1, 1)
 
     def clear(self):
         while self.grid.count():
@@ -254,20 +254,28 @@ class IconGrid(QWidget):
             w = item.widget()
             if w:
                 w.setParent(None)
+            elif item.layout():
+                pass
 
     def add_file_widgets(self, files):
-        """files is a list of (QPixmap, filename)"""
         self.clear()
         cols = 8
         row, col = 0, 0
         for pixmap, name in files:
             widget = FileIconWidget(pixmap, name)
-            widget.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            widget.setSizePolicy(
+                QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+            )
             self.grid.addWidget(widget, row, col)
             col += 1
             if col >= cols:
                 col = 0
                 row += 1
+
+        if col < cols:
+            self.grid.setColumnStretch(col, 1)
+
+        self.grid.setRowStretch(row, 1)
 
 
 app = QApplication()
