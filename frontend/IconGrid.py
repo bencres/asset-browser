@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QGridLayout, QSizePolicy
 
-from frontend.FileIconWidget import FileIconWidget
+from FileIconWidget import FileIconWidget
 
 
 class IconGrid(QWidget):
@@ -23,8 +23,8 @@ class IconGrid(QWidget):
         self.clear()
         cols = 8
         row, col = 0, 0
-        for pixmap, name in files:
-            widget = FileIconWidget(pixmap, name)
+        for pixmap, name, asset in files:
+            widget = FileIconWidget(pixmap, name, asset)
             widget.setSizePolicy(
                 QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
             )

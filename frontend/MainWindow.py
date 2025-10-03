@@ -7,8 +7,11 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QCheckBox, QSplitter, QTreeView, QScrollArea, \
     QMessageBox
 
-from frontend.gui import ASSET_API_ENDPOINT, ROOT_ASSET_DIRECTORY
-from frontend.IconGrid import IconGrid
+from IconGrid import IconGrid
+
+BACKEND_URL = "http://127.0.0.1:8000"
+ASSET_API_ENDPOINT = f"{BACKEND_URL}/assets/"
+ROOT_ASSET_DIRECTORY = "Assets"
 
 
 class MainWindow(QMainWindow):
@@ -17,6 +20,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Universal Asset Browser")
         self.resize(800, 600)
         self.assets = self._get_assets()
+        print(self.assets)
         self._init_ui()
         self._reload_tree(self.assets)
 
@@ -149,7 +153,7 @@ class MainWindow(QMainWindow):
             directory_path = "/" + directory_path
         self.grid.clear()  # Clear any existing icons
 
-        found_previews = []  # List to store (QPixmap, subdirectory_name) tuples
+        found_previews = []  # List to store (QPixmap, subdirectory_name, asset) tuples
 
         # Check if the provided path actually exists and is a directory
         if not os.path.isdir(directory_path):
