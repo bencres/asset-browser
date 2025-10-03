@@ -5,9 +5,10 @@ import requests
 from PySide6.QtCore import Qt, QModelIndex
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QCheckBox, QSplitter, QTreeView, QScrollArea, \
-    QMessageBox
+    QMessageBox, QStackedWidget
 
 from IconGrid import IconGrid
+from DetailsPage import DetailsPage
 
 BACKEND_URL = "http://127.0.0.1:8000"
 ASSET_API_ENDPOINT = f"{BACKEND_URL}/assets/"
@@ -20,7 +21,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Universal Asset Browser")
         self.resize(800, 600)
         self.assets = self._get_assets()
-        print(self.assets)
         self._init_ui()
         self._reload_tree(self.assets)
 
@@ -44,16 +44,25 @@ class MainWindow(QMainWindow):
         splitter.addWidget(self.tree)
 
         # Right side: grid of assets
+        self.details = DetailsPage()
         self.grid = IconGrid()
+        self.stacked = QStackedWidget()
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(self.grid)
-        splitter.addWidget(self.grid)
+        self.grid.asset_icon_widget_double_clicked.connect(self._show_details)
+        self.stacked.addWidget(self.grid)
+        self.stacked.addWidget(self.details)
+        splitter.addWidget(self.stacked)
 
         # Central widget
         main_layout.addWidget(splitter)
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
+
+    def _show_details(self, asset):
+        self.details.set_asset(asset)
+        self.stacked.setCurrentWidget(self.details)
 
     def _get_assets(self):
         try:
@@ -128,7 +137,9 @@ class MainWindow(QMainWindow):
                 if current_absolute_path_key_tuple not in path_nodes:
                     dir_item = QStandardItem(component)
                     dir_path_string = str(pathlib.Path(*current_absolute_path_key_tuple))
-                    dir_item.setData(dir_path_string, Qt.ItemDataRole.UserRole)
+                    # TODO: this just obviously doesn't work at all for so many reasons
+                    data = {"dir_path": dir_path_string, "asset": asset}
+                    dir_item.setData(data, Qt.ItemDataRole.UserRole)
 
                     current_parent_item.appendRow(dir_item)
                     path_nodes[current_absolute_path_key_tuple] = dir_item
@@ -139,10 +150,11 @@ class MainWindow(QMainWindow):
 
 
     def on_tree_item_selected(self, idx: QModelIndex):
-        dir_path = idx.data(Qt.ItemDataRole.UserRole)
-        self._populate_icon_grid_from_directory(str(dir_path))
+        asset = idx.data(Qt.ItemDataRole.UserRole)
+        self._populate_icon_grid_from_directory(asset)
 
-    def _populate_icon_grid_from_directory(self, directory_path: str):
+    def _populate_icon_grid_from_directory(self, asset: dict):
+        directory_path = asset["dir_path"]
         """
         Scans a given directory and its immediate subdirectories for 'preview' images.
         Populates the IconGrid with FileIconWidgets for each subdirectory that contains a preview.
@@ -184,12 +196,12 @@ class MainWindow(QMainWindow):
                     # Found a preview, create a QPixmap
                     pixmap = QPixmap(preview_image_path)
                     if not pixmap.isNull():
-                        found_previews.append((pixmap, d))  # d is the subdirectory name
+                        found_previews.append((pixmap, d, asset))  # d is the subdirectory name
                     else:
                         # Handle cases where the image file exists but is corrupted/invalid
                         print(f"Warning: Could not load preview image for {subdir_full_path}: {preview_image_path}")
                         # You might append a placeholder pixmap here if desired
-                        found_previews.append((QPixmap(), d))  # Empty pixmap will trigger placeholder in FileIconWidget
+                        found_previews.append((QPixmap(), d, asset))  # Empty pixmap will trigger placeholder in FileIconWidget
                 # else: No preview found for this subdirectory, skip it
 
             if self.cb_recursive_dir_search.checkState() == Qt.CheckState.Checked:
@@ -199,7 +211,6 @@ class MainWindow(QMainWindow):
         self.grid.add_file_widgets(found_previews)
         if not found_previews:
             self._display_message(f"No previews found in '{directory_path}' or its subdirectories.", "No Previews")
-
 
 
     @staticmethod

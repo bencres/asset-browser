@@ -38,3 +38,4 @@ class FileIconWidget(QWidget):
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.double_clicked.emit(self.asset)
+            print(f"Clicked asset {self.asset}")

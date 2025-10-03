@@ -1,9 +1,11 @@
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget, QGridLayout, QSizePolicy
 
 from FileIconWidget import FileIconWidget
 
 
 class IconGrid(QWidget):
+    asset_icon_widget_double_clicked = Signal(dict)
     def __init__(self):
         super().__init__()
         self.grid = QGridLayout(self)
@@ -25,6 +27,7 @@ class IconGrid(QWidget):
         row, col = 0, 0
         for pixmap, name, asset in files:
             widget = FileIconWidget(pixmap, name, asset)
+            widget.double_clicked.connect(self.asset_icon_widget_double_clicked)
             widget.setSizePolicy(
                 QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
             )
