@@ -7,8 +7,8 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QCheckBox, QSplitter, QTreeView, QScrollArea, \
     QMessageBox, QStackedWidget
 
-from IconGrid import IconGrid
-from DetailsPage import DetailsPage
+from frontend.IconGrid import IconGrid
+from frontend.DetailsPage import DetailsPage
 
 BACKEND_URL = "http://127.0.0.1:8000"
 ASSET_API_ENDPOINT = f"{BACKEND_URL}/assets/"

@@ -1,7 +1,7 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget, QGridLayout, QSizePolicy
 
-from FileIconWidget import FileIconWidget
+from frontend.FileIconWidget import FileIconWidget
 
 
 class IconGrid(QWidget):

@@ -8,6 +8,9 @@ class Presenter:
         app = self._detect_application()
         self.adapter = self.setAdapter(app)
 
+    def run(self):
+        self.win.show()
+
     def _detect_application(self):
         pass
 
