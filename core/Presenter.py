@@ -40,7 +40,6 @@ class Presenter:
     def on_save_metadata_changes(self, asset: dict):
         pass
 
-
     def _detect_application(self):
         pass
 
