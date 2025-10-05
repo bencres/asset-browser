@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 
 
 class Preview(QWidget):
@@ -12,8 +12,8 @@ class Preview(QWidget):
     Skeleton Preview widget representing a single asset preview.
     """
 
-    asset_clicked = Signal(object)         # Emits the asset payload
-    asset_double_clicked = Signal(object)   # Emits the asset payload
+    asset_clicked = Signal(object)
+    asset_double_clicked = Signal(object)
 
     def __init__(
         self,
@@ -28,9 +28,31 @@ class Preview(QWidget):
         self.asset_name: str = asset_name
         self.asset_id: Optional[int] = asset_id
         self._asset: Optional[Any] = asset
+        self.asset = asset
+        self.setStyleSheet("background-color: #222222;")
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(1, 1, 1, 1)
+        layout.setSpacing(0)
 
-    # Optional helpers to wire events later
-    def mousePressEvent(self, event):	
+        label_icon = QLabel()
+        label_icon.setPixmap(
+            self.thumbnail.scaled(
+                96,
+                96,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
+        label_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        label_text = QLabel(self.asset_name)
+        label_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label_text.setWordWrap(True)
+
+        layout.addWidget(label_icon)
+        layout.addWidget(label_text)
+
+    def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.asset_clicked.emit(self._asset)
     
