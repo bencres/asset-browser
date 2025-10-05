@@ -1,9 +1,10 @@
 from PySide6.QtWidgets import QWidget
-
+from PySide6.QtGui import QPixmap
 import os
 from typing import Any, Dict, List
 
 from frontend.Window import Window
+from frontend.Preview import Preview
 from backend.DataController import DataController
 
 class Presenter(QWidget):
@@ -18,8 +19,6 @@ class Presenter(QWidget):
             win.show_message(f"Error setting adapter! {e}")
         self.assets = self._load_assets()
         print(self.assets)
-        self.tree = self._build_directory_tree(self.assets)
-        print(self.tree)
 
     def run(self):
         self.win.show()
@@ -113,7 +112,59 @@ class Presenter(QWidget):
 
         return tree
 
-    def _build_preview_list(self, dir: str):
-        pass
+    def _create_previews_list(self, assets: list) -> List[Preview]:
+        """
+        From a flat list of asset dicts, create a list of Preview widgets.
+
+        Assumptions:
+        - Each asset has a 'directory_path' that points to a directory containing a
+          preview file named 'preview' with one of the extensions: .png, .webp, .jpg
+        - The asset's display name comes from asset['name']
+        - The asset id comes from asset['id'] (optional)
+        """
+        previews: List[Preview] = []
+        if not assets:
+            return previews
+
+        for asset in assets:
+            if not isinstance(asset, dict):
+                continue
+            name = asset.get('name', '')
+            asset_id = asset.get('id')
+            dir_path = asset.get('directory_path') or ''
+
+            # Normalize the directory path
+            norm = os.path.normpath(str(dir_path)) if dir_path else ''
+
+            # Determine preview file path
+            preview_path = None
+            if norm:
+                # Try both the normalized path and a version with a leading slash if missing
+                candidate_bases = [norm]
+                if not norm.startswith(os.sep):
+                    candidate_bases.append(os.sep + norm)
+
+                exts = ['.png', '.webp', '.jpg']
+                for base in candidate_bases:
+                    for ext in exts:
+                        cand = os.path.join(base, 'preview' + ext)
+                        if os.path.isfile(cand):
+                            preview_path = cand
+                            break
+                    if preview_path:
+                        break
+
+            # Load pixmap (empty if not found)
+            pixmap = QPixmap(preview_path) if preview_path else QPixmap()
+
+            previews.append(Preview(
+                thumbnail=pixmap,
+                assetName=name,
+                assetId=asset_id,
+                asset=asset,
+                parent=None,
+            ))
+
+        return previews
 
 
