@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 from core.Presenter import Presenter
 from frontend.MainWindow import MainWindow
 from backend.DataController import DataController
+from frontend.Window import Window
 
 SERVER_URL = "http://127.0.0.1:8000"
 
@@ -38,9 +39,9 @@ try:
     print("FastAPI server process started. Continuing with GUI launch.")
 
     app = QApplication(sys.argv)
-    data_controller_model = DataController(SERVER_URL)
-    main_window_view = MainWindow()
-    presenter = Presenter(main_window_view, data_controller_model)
+    model = DataController(SERVER_URL)
+    view = Window()
+    presenter = Presenter(view, model)
     presenter.run()
     exit_code = app.exec()
 

@@ -19,16 +19,13 @@ class Preview(QWidget):
         self,
         thumbnail: Optional[QPixmap] = None,
         asset_name: str = "",
-        asset_id: Optional[int] = None,
-        asset: Optional[Any] = None,
+        asset_id: int = None,
         parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent)
         self.thumbnail: QPixmap = thumbnail or QPixmap()
         self.asset_name: str = asset_name
         self.asset_id: Optional[int] = asset_id
-        self._asset: Optional[Any] = asset
-        self.asset = asset
         self.setStyleSheet("background-color: #222222;")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(1, 1, 1, 1)
@@ -54,8 +51,8 @@ class Preview(QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
-            self.asset_clicked.emit(self._asset)
+            self.asset_clicked.emit(self.asset_id)
     
     def mouseDoubleClickEvent(self, event):	
         if event.button() == Qt.MouseButton.LeftButton:
-            self.asset_double_clicked.emit(self._asset)
+            self.asset_double_clicked.emit(self.asset_id)
