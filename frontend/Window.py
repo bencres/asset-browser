@@ -1,7 +1,7 @@
 from typing import Any
 
-from PySide6.QtWidgets import QMainWindow, QWidget
-
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel
+from frontend.Browser import Browser
 
 class Window(QMainWindow):
     """
@@ -14,9 +14,18 @@ class Window(QMainWindow):
     """
 
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.presenter = None
+    def __init__(self) -> None:
+        super().__init__()
+        self.setWindowTitle("Universal Asset Browser")
+        self.resize(800, 600)
+        self.widget = QWidget()
+        self.layout = QVBoxLayout()
+        self.label = QLabel("Hello world!")
+        self.browser = Browser()
+        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.browser)
+        self.widget.setLayout(self.layout)
+        self.setCentralWidget(self.widget)
 		 
 
     # UML: + showMessage(msg)

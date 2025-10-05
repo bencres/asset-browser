@@ -18,7 +18,8 @@ class Presenter(QWidget):
         except Exception as e:
             win.show_message(f"Error setting adapter! {e}")
         self.assets = self._load_assets()
-        print(self.assets)
+        self.previews = self._create_previews_list(self.assets)
+        self.win.browser.draw_previews(self.previews)
 
     def run(self):
         self.win.show()
@@ -159,9 +160,8 @@ class Presenter(QWidget):
 
             previews.append(Preview(
                 thumbnail=pixmap,
-                assetName=name,
-                assetId=asset_id,
-                asset=asset,
+                asset_name=name,
+                asset_id=asset_id,
                 parent=None,
             ))
 
