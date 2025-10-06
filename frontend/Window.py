@@ -45,6 +45,11 @@ class Window(QMainWindow):
 
         # Connect tree's signal to window's signal
         self.tree.treeItemClicked.connect(self._on_tree_item_clicked)
+        self.detail.back_clicked.connect(self.show_browser)
+
+    def show_browser(self) -> None:
+        """Show the browser view."""
+        self.stacked.setCurrentWidget(self.browser)
 
     def show_asset_detail(self, asset: dict) -> None:
         """Show the detail view for the given asset."""
