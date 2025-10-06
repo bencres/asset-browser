@@ -2,7 +2,7 @@ from typing import Optional
 
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QLineEdit, QComboBox, QLabel, QSizePolicy
+    QWidget, QHBoxLayout, QLineEdit, QComboBox, QLabel, QSizePolicy, QPushButton
 )
 
 
@@ -17,6 +17,7 @@ class Toolbar(QWidget):
 
     searchTextChanged = Signal(str)  # Emits search text when it changes
     filterChanged = Signal(str)  # Emits selected filter when it changes
+    importClicked = Signal()
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -59,12 +60,26 @@ class Toolbar(QWidget):
         ])
         self.filter_combo.currentTextChanged.connect(self._on_filter_changed)
 
+        # Import button
+        self.btn_import = QPushButton("Import")
+        self.btn_import.clicked.connect(self._on_import_clicked)
+
         # Add widgets to layout
         layout.addWidget(search_label)
         layout.addWidget(self.search_bar, 1)  # Stretch factor 1
         layout.addWidget(filter_label)
         layout.addWidget(self.filter_combo)
+        layout.addWidget(self.btn_import)
+        self.btn_import.setVisible(False)
         layout.addStretch()
+
+    def show_import_button(self):
+        """Show the import button."""
+        self.btn_import.setVisible(True)
+
+    def hide_import_button(self):
+        """Hide the import button."""
+        self.btn_import.setVisible(False)
 
     def _apply_style(self):
         """Apply styling to the toolbar and its components."""
@@ -189,3 +204,7 @@ class Toolbar(QWidget):
     def clear_search(self):
         """Clear the search bar."""
         self.search_bar.clear()
+
+    def _on_import_clicked(self):
+        """Handle import button click."""
+        self.importClicked.emit()

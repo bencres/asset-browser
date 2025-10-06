@@ -1,6 +1,6 @@
 from typing import Any
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QSplitter, QStackedWidget
 from frontend.Browser import Browser
 from frontend.Detail import Detail

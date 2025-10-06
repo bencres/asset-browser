@@ -38,11 +38,16 @@ class Presenter(QWidget):
         self.win.searchTextChanged.connect(self.on_search_changed)
         self.win.filterChanged.connect(self.on_filter_changed)
 
-    def on_asset_preview_clicked(self, asset: dict):
-        pass
+    def _get_asset_by_id(self, asset_id: int) -> dict:
+        return next((a for a in self.assets if a.get('id') == asset_id), None)
+
+    def on_asset_preview_clicked(self, asset_id: int) -> dict:
+        asset = self._get_asset_by_id(asset_id)
+        self.win.toolbar.show_import_button()
+
 
     def on_asset_preview_double_clicked(self, asset_id: int):
-        asset = next((a for a in self.assets if a.get('id') == asset_id), None)
+        asset = self._get_asset_by_id(asset_id)
         self.win.show_asset_detail(asset)
 
     def on_back_clicked(self, widget: QWidget):
@@ -239,6 +244,7 @@ class Presenter(QWidget):
                 asset_id=asset_id,
                 parent=None,
             )
+            asset_preview.asset_clicked.connect(self.on_asset_preview_clicked)
             asset_preview.asset_double_clicked.connect(self.on_asset_preview_double_clicked)
             previews.append(asset_preview)
 

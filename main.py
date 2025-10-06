@@ -17,6 +17,9 @@ SERVER_URL = "http://127.0.0.1:8000"
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
+# WARNING: this is specific to my machine for testing purposes.
+# TODO: implement user selection of local assets directory.
+LOCAL_ASSETS_DIR = "/Users/dev/Assets"
 
 UVICORN_COMMAND = ["uvicorn", "server:app", "--reload"]
 
@@ -38,7 +41,7 @@ try:
     print("FastAPI server process started. Continuing with GUI launch.")
 
     app = QApplication(sys.argv)
-    model = DataController(SERVER_URL)
+    model = DataController(SERVER_URL, LOCAL_ASSETS_DIR)
     view = Window()
     presenter = Presenter(view, model)
     presenter.run()

@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsDropShadowE
 class Preview(QWidget):
     """
     Styled Preview widget representing a single asset preview.
-    
+
     Features:
     - Hover effects
     - Shadow on hover
@@ -31,19 +31,19 @@ class Preview(QWidget):
         self.asset_name: str = asset_name
         self.asset_id: Optional[int] = asset_id
         self._is_hovered = False
-        
+
         # Set fixed size for the preview widget
         self.setFixedSize(QSize(180, 220))
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        
+
         # Apply initial styling
         self._apply_style(hovered=False)
-        
+
         # Create layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(8)
-        
+
         # Image container with background
         self.image_container = QWidget()
         self.image_container.setFixedSize(160, 160)
@@ -54,10 +54,10 @@ class Preview(QWidget):
                 border: 2px solid #333333;
             }
         """)
-        
+
         image_layout = QVBoxLayout(self.image_container)
         image_layout.setContentsMargins(0, 0, 0, 0)
-        
+
         # Icon label
         self.label_icon = QLabel()
         if not self.thumbnail.isNull():
@@ -72,10 +72,10 @@ class Preview(QWidget):
             # Placeholder for missing image
             self.label_icon.setText("No Preview")
             self.label_icon.setStyleSheet("color: #666666; font-size: 11pt;")
-        
+
         self.label_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_layout.addWidget(self.label_icon)
-        
+
         # Text label
         self.label_text = QLabel(self.asset_name)
         self.label_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -90,12 +90,12 @@ class Preview(QWidget):
                 padding: 2px;
             }
         """)
-        
+
         # Add widgets to layout
         layout.addWidget(self.image_container)
         layout.addWidget(self.label_text)
         layout.addStretch()
-        
+
         # Add shadow effect (will be shown on hover)
         self.shadow = QGraphicsDropShadowEffect()
         self.shadow.setBlurRadius(20)
@@ -104,9 +104,9 @@ class Preview(QWidget):
         self.shadow.setEnabled(False)
         self.setGraphicsEffect(self.shadow)
 
-    def _apply_style(self, hovered: bool = False):
+    def _apply_style(self, hovered: bool = False, clicked: bool = False):
         """Apply styling based on hover state."""
-        if hovered:
+        if hovered or clicked:
             self.setStyleSheet("""
                 Preview {
                     background-color: #2d2d2d;
@@ -128,7 +128,7 @@ class Preview(QWidget):
         self._is_hovered = True
         self._apply_style(hovered=True)
         self.shadow.setEnabled(True)
-        
+
         # Update image container border on hover
         self.image_container.setStyleSheet("""
             QWidget {
@@ -144,7 +144,7 @@ class Preview(QWidget):
         self._is_hovered = False
         self._apply_style(hovered=False)
         self.shadow.setEnabled(False)
-        
+
         # Reset image container border
         self.image_container.setStyleSheet("""
             QWidget {
@@ -160,7 +160,7 @@ class Preview(QWidget):
         if event.button() == Qt.MouseButton.LeftButton:
             self.asset_clicked.emit(self.asset_id)
         super().mousePressEvent(event)
-    
+
     def mouseDoubleClickEvent(self, event):
         """Handle double-click event."""
         if event.button() == Qt.MouseButton.LeftButton:
