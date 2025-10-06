@@ -37,23 +37,34 @@ class Presenter(QWidget):
         self.win.treeItemSelected.connect(self.on_tree_item_clicked)
         self.win.searchTextChanged.connect(self.on_search_changed)
         self.win.filterChanged.connect(self.on_filter_changed)
+        self.win.scanClicked.connect(self.on_scan_clicked)
+        self.win.importClicked.connect(self.on_import_clicked)
+
+    def on_scan_clicked(self):
+        print("Scan clicked")
+
+    def on_import_clicked(self):
+        print("Import clicked")
+        pass
 
     def _get_asset_by_id(self, asset_id: int) -> dict:
         return next((a for a in self.assets if a.get('id') == asset_id), None)
 
     def on_asset_preview_clicked(self, asset_id: int) -> dict:
         asset = self._get_asset_by_id(asset_id)
-        self.win.toolbar.show_import_button()
+        # TODO: import button and splitter are not hidden when clicking elsewhere.
+        if asset:
+            # Show mini detail view
+            self.win.show_mini_detail(asset)
 
+            # Show import button in toolbar
+            self.win.toolbar.show_import_button()
 
     def on_asset_preview_double_clicked(self, asset_id: int):
         asset = self._get_asset_by_id(asset_id)
         self.win.show_asset_detail(asset)
 
     def on_back_clicked(self, widget: QWidget):
-        pass
-
-    def on_import_clicked(self, asset: dict):
         pass
 
     def on_tree_item_clicked(self, path: str):

@@ -8,16 +8,13 @@ from PySide6.QtWidgets import (
 
 class Toolbar(QWidget):
     """
-    Toolbar widget containing search and filter controls.
-
-    Features:
-    - Search bar for text-based filtering
-    - Combo box for category/type filtering
+    Toolbar widget containing main user controls.
     """
 
     searchTextChanged = Signal(str)  # Emits search text when it changes
     filterChanged = Signal(str)  # Emits selected filter when it changes
     importClicked = Signal()
+    scanClicked = Signal()
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -32,6 +29,10 @@ class Toolbar(QWidget):
         self.setMaximumHeight(50)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(15)
+
+        # Scan Asset Directory button
+        self.btn_scan = QPushButton("Scan Asset Directory")
+        self.btn_scan.clicked.connect(self._scan_clicked)
 
         # Search bar
         search_label = QLabel("Search:")
@@ -65,6 +66,7 @@ class Toolbar(QWidget):
         self.btn_import.clicked.connect(self._on_import_clicked)
 
         # Add widgets to layout
+        layout.addWidget(self.btn_scan)
         layout.addWidget(search_label)
         layout.addWidget(self.search_bar, 1)  # Stretch factor 1
         layout.addWidget(filter_label)
@@ -80,6 +82,9 @@ class Toolbar(QWidget):
     def hide_import_button(self):
         """Hide the import button."""
         self.btn_import.setVisible(False)
+
+    def _scan_clicked(self):
+        self.scanClicked.emit()
 
     def _apply_style(self):
         """Apply styling to the toolbar and its components."""

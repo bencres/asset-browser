@@ -152,7 +152,7 @@ class Browser(QWidget):
 
         # Calculate columns based on available width
         # Fixed preview width is 180px, spacing is 15px
-        cols = max(1, (self.width() - 40) // 195)  # 180 + 15
+        cols = max(1, (self.width() - 40) // 140)
         if cols == 0:
             cols = 4  # Fallback
         
@@ -174,15 +174,3 @@ class Browser(QWidget):
         if col < cols and col > 0:
             self.grid.setColumnStretch(cols, 1)
         self.grid.setRowStretch(row + 1, 1)
-
-    def resizeEvent(self, event):
-        """Handle resize events to adjust grid columns."""
-        super().resizeEvent(event)
-        # Optionally redraw previews on significant resize
-        # if self._previews:
-        #     self.draw_previews(self._previews)
-
-    def draw_mini_details(self, a: Any) -> None:
-        """Render a lightweight details view for the given asset."""
-        # TODO: Update a sidebar/area with minimal details.
-        pass
