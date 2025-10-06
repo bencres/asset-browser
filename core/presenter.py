@@ -8,10 +8,10 @@ from frontend.preview import Preview
 from backend.asset_service import AssetService
 
 class Presenter(QWidget):
-    def __init__(self, win: Window, dc: AssetService):
+    def __init__(self, win: Window, asset_service: AssetService):
         super().__init__()
         self.win = win
-        self.dc = dc
+        self.asset_service = asset_service
         self.ROOT_ASSET_DIRECTORY = "Assets"
         
         try:
@@ -45,7 +45,7 @@ class Presenter(QWidget):
         self.win.importClicked.connect(self.on_import_clicked)
 
     def on_scan_clicked(self):
-        self.dc.sync()
+        self.asset_service.sync()
         print("Scan clicked")
 
 
@@ -103,7 +103,7 @@ class Presenter(QWidget):
         pass
 
     def _load_assets(self):
-        return self.dc.get_assets()
+        return self.asset_service.get_assets()
 
     def _get_assets_in_directory(self, selected_path: str) -> List[Dict[str, Any]]:
         """
