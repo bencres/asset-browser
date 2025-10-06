@@ -19,7 +19,9 @@ class Presenter(QWidget):
             win.show_message(f"Error setting adapter! {e}")
         self.assets = self._load_assets()
         self.previews = self._create_previews_list(self.assets)
+        self.directory_tree = self._build_directory_tree(self.assets)
         self.win.browser.draw_previews(self.previews)
+        self.win.tree.draw_tree(self.directory_tree)
 
     def run(self):
         self.win.show()

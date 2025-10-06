@@ -1,7 +1,9 @@
 from typing import Any
 
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QSplitter
 from frontend.Browser import Browser
+from frontend.Tree import Tree
+
 
 class Window(QMainWindow):
     """
@@ -19,18 +21,21 @@ class Window(QMainWindow):
         self.setWindowTitle("Universal Asset Browser")
         self.resize(800, 600)
         self.widget = QWidget()
+        self.splitter = QSplitter()
         self.layout = QVBoxLayout()
         self.label = QLabel("Hello world!")
         self.browser = Browser()
-        self.layout.addWidget(self.label)
-        self.layout.addWidget(self.browser)
+        self.tree = Tree()
+        self.splitter.addWidget(self.tree)
+        self.splitter.addWidget(self.browser)
+        self.layout.addWidget(self.splitter)
         self.widget.setLayout(self.layout)
         self.setCentralWidget(self.widget)
 		 
 
     # UML: + showMessage(msg)
     def showMessage(self, msg: str) -> None:
-        """Display a message to the user (implementation TBD)."""
+        """Display a message to the user."""
         pass
 
     # UML: + bindEvents(presenter: Presenter)
