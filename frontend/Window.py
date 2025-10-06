@@ -1,5 +1,6 @@
 from typing import Any
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QSplitter
 from frontend.Browser import Browser
 from frontend.Tree import Tree
@@ -15,6 +16,8 @@ class Window(QMainWindow):
     - Rendering and widget wiring should be implemented in concrete code later.
     """
 
+    # Signal to notify presenter of tree item selection
+    treeItemSelected = Signal(str)
 
     def __init__(self) -> None:
         super().__init__()
@@ -23,7 +26,6 @@ class Window(QMainWindow):
         self.widget = QWidget()
         self.splitter = QSplitter()
         self.layout = QVBoxLayout()
-        self.label = QLabel("Hello world!")
         self.browser = Browser()
         self.tree = Tree()
         self.splitter.addWidget(self.tree)
@@ -31,17 +33,26 @@ class Window(QMainWindow):
         self.layout.addWidget(self.splitter)
         self.widget.setLayout(self.layout)
         self.setCentralWidget(self.widget)
-		 
+
+        # Connect tree's signal to window's signal
+        self.tree.treeItemClicked.connect(self._on_tree_item_clicked)
+
+    def _on_tree_item_clicked(self, path: str) -> None:
+        """Internal handler that forwards tree clicks to presenter via signal."""
+        self.treeItemSelected.emit(path)
 
     # UML: + showMessage(msg)
-    def showMessage(self, msg: str) -> None:
+    def show_message(self, msg: str) -> None:
         """Display a message to the user."""
+        # TODO: Implement message display (e.g., status bar or message box)
         pass
 
     # UML: + bindEvents(presenter: Presenter)
-    def bindEvents(self, presenter: Any) -> None:
+    def bind_events(self, presenter: Any) -> None:
         """Bind a presenter/controller to this view."""
         self.presenter = presenter
+        # Connect Window's signal to Presenter's handler
+        self.treeItemSelected.connect(self.presenter.on_tree_item_clicked)
 
     # UML: + onAssetPreviewClicked(a: Asset)
     def onAssetPreviewClicked(self, a: Any) -> None:
