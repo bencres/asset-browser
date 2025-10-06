@@ -4,6 +4,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QSplitter, QStackedWidget
 from frontend.Browser import Browser
 from frontend.Detail import Detail
+from frontend.Toolbar import Toolbar
 from frontend.Tree import Tree
 
 
@@ -28,6 +29,11 @@ class Window(QMainWindow):
         self.widget = QWidget()
         self.layout = QVBoxLayout()
         self.splitter = QSplitter()
+
+        self.toolbar = Toolbar()
+        self.toolbar.searchTextChanged.connect(self._on_search_changed)
+        self.toolbar.filterChanged.connect(self._on_filter_changed)
+        self.layout.addWidget(self.toolbar)
 
         self.tree = Tree()
         self.stacked = QStackedWidget()
@@ -101,3 +107,10 @@ class Window(QMainWindow):
     def onSaveMetadataChanges(self, a: Any) -> None:
         """Persist metadata changes for the given asset."""
         pass
+
+    def _on_search_changed(self, text: str):
+        """Handle search text changes."""
+        print(f"Search text changed to: {text}")
+
+    def _on_filter_changed(self, text: str):
+        print(f"Filter changed to: {text}")

@@ -10,7 +10,6 @@ from PySide6.QtWidgets import (
 )
 
 from core.Presenter import Presenter
-from frontend.MainWindow import MainWindow
 from backend.DataController import DataController
 from frontend.Window import Window
 
