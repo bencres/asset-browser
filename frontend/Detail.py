@@ -117,7 +117,7 @@ class Detail(QWidget):
         # Name field
         name_layout = QVBoxLayout()
         name_label = QLabel("Name:")
-        name_label.setStyleSheet("font-weight: bold; font-size: 12pt;")
+        name_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
         self.name_display = QLabel()
         self.name_display.setWordWrap(True)
         self.name_display.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -133,7 +133,7 @@ class Detail(QWidget):
         # File Path field
         path_layout = QVBoxLayout()
         path_label = QLabel("File Path:")
-        path_label.setStyleSheet("font-weight: bold; font-size: 12pt;")
+        path_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
         self.path_display = QLabel()
         self.path_display.setWordWrap(True)
         self.path_display.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -150,7 +150,7 @@ class Detail(QWidget):
         # Description field
         desc_layout = QVBoxLayout()
         desc_label = QLabel("Description:")
-        desc_label.setStyleSheet("font-weight: bold; font-size: 12pt;")
+        desc_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
         self.desc_display = QLabel()
         self.desc_display.setWordWrap(True)
         self.desc_display.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -168,7 +168,7 @@ class Detail(QWidget):
         # Tags field
         tags_layout = QVBoxLayout()
         tags_label = QLabel("Tags:")
-        tags_label.setStyleSheet("font-weight: bold; font-size: 12pt;")
+        tags_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
         self.tags_display = QLabel()
         self.tags_display.setWordWrap(True)
         self.tags_display.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
