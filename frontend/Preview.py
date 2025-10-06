@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Any, Optional
 
 from PySide6.QtCore import Signal, Qt
@@ -12,8 +10,8 @@ class Preview(QWidget):
     Skeleton Preview widget representing a single asset preview.
     """
 
-    asset_clicked = Signal(object)
-    asset_double_clicked = Signal(object)
+    asset_clicked = Signal(int)
+    asset_double_clicked = Signal(int)
 
     def __init__(
         self,

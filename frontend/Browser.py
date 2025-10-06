@@ -67,7 +67,7 @@ class Browser(QWidget):
             self.grid.addWidget(empty_label, 0, 0)
             return
 
-        cols = 8
+        cols = 4
         row, col = 0, 0
 
         for preview in self._previews:

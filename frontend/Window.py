@@ -30,6 +30,7 @@ class Window(QMainWindow):
         self.tree = Tree()
         self.splitter.addWidget(self.tree)
         self.splitter.addWidget(self.browser)
+        self.splitter.setSizes([150, 650])
         self.layout.addWidget(self.splitter)
         self.widget.setLayout(self.layout)
         self.setCentralWidget(self.widget)
@@ -48,11 +49,10 @@ class Window(QMainWindow):
         pass
 
     # UML: + bindEvents(presenter: Presenter)
-    def bind_events(self, presenter: Any) -> None:
-        """Bind a presenter/controller to this view."""
-        self.presenter = presenter
-        # Connect Window's signal to Presenter's handler
-        self.treeItemSelected.connect(self.presenter.on_tree_item_clicked)
+    # def bind_events(self, presenter: Any) -> None:
+    #     """Bind a presenter/controller to this view."""
+    #     # Connect Window's signal to Presenter's handler
+    #     self.treeItemSelected.connect(self.presenter.on_tree_item_clicked)
 
     # UML: + onAssetPreviewClicked(a: Asset)
     def onAssetPreviewClicked(self, a: Any) -> None:
