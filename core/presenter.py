@@ -3,12 +3,12 @@ from PySide6.QtGui import QPixmap
 import os
 from typing import Any, Dict, List
 
-from frontend.Window import Window
-from frontend.Preview import Preview
-from backend.DataController import DataController
+from frontend.window import Window
+from frontend.preview import Preview
+from backend.asset_service import AssetService
 
 class Presenter(QWidget):
-    def __init__(self, win: Window, dc: DataController):
+    def __init__(self, win: Window, dc: AssetService):
         super().__init__()
         self.win = win
         self.dc = dc
@@ -19,7 +19,8 @@ class Presenter(QWidget):
             self.adapter = self._set_adapter(app)
         except Exception as e:
             win.show_message(f"Error setting adapter! {e}")
-        
+            print(f"Error setting adapter! {e}")
+
         self.assets = self._load_assets()
         self.directory_tree = self._build_directory_tree(self.assets)
         
@@ -33,6 +34,9 @@ class Presenter(QWidget):
     def run(self):
         self.win.show()
 
+    def reload_assets(self):
+        pass
+
     def bind_events(self):
         self.win.treeItemSelected.connect(self.on_tree_item_clicked)
         self.win.searchTextChanged.connect(self.on_search_changed)
@@ -41,13 +45,16 @@ class Presenter(QWidget):
         self.win.importClicked.connect(self.on_import_clicked)
 
     def on_scan_clicked(self):
+        self.dc.sync()
         print("Scan clicked")
+
 
     def on_import_clicked(self):
         print("Import clicked")
         pass
 
     def _get_asset_by_id(self, asset_id: int) -> dict:
+        # TODO: this is a quick fix. Should actually query the database.
         return next((a for a in self.assets if a.get('id') == asset_id), None)
 
     def on_asset_preview_clicked(self, asset_id: int) -> dict:
@@ -83,9 +90,6 @@ class Presenter(QWidget):
         # Update the browser display
         self.win.browser.draw_previews(previews)
 
-    def on_validate_database_clicked(self, asset: dict):
-        pass
-
     def on_edit_metadata(self, asset: dict):
         pass
 
@@ -111,6 +115,7 @@ class Presenter(QWidget):
         Returns:
             List of asset dictionaries that are anywhere within the selected directory tree
         """
+        # TODO: this is a quick fix. Should actually query the database.
         filtered_assets = []
         
         # Normalize the selected path
@@ -278,6 +283,7 @@ class Presenter(QWidget):
         Returns:
             List of asset dictionaries that match the filter criteria
         """
+        # TODO: This is a quick fix. Should actually query the database.
         if not filter_text or not filter_text.strip():
             # Return all assets if filter text is empty
             return self.assets

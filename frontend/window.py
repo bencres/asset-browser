@@ -2,11 +2,11 @@ from typing import Any
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter, QStackedWidget
-from frontend.Browser import Browser
-from frontend.Detail import Detail
-from frontend.Tree import Tree
-from frontend.Toolbar import Toolbar
-from frontend.MiniDetail import MiniDetail
+from frontend.browser import Browser
+from frontend.detail import Detail
+from frontend.tree import Tree
+from frontend.toolbar import Toolbar
+from frontend.mini_detail import MiniDetail
 
 
 class Window(QMainWindow):

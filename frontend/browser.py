@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QScrollArea, QVBoxLayout
 )
 
-from frontend.Preview import Preview
+from frontend.preview import Preview
 
 
 class Browser(QWidget):
@@ -151,7 +151,7 @@ class Browser(QWidget):
             return
 
         # Calculate columns based on available width
-        # Fixed preview width is 180px, spacing is 15px
+        # TODO: fix these magic numbers
         cols = max(1, (self.width() - 40) // 140)
         if cols == 0:
             cols = 4  # Fallback
