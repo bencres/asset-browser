@@ -20,6 +20,8 @@ class Window(QMainWindow):
 
     # Signal to notify presenter of tree item selection
     treeItemSelected = Signal(str)
+    searchTextChanged = Signal(str)
+    filterChanged = Signal(str)
 
     def __init__(self) -> None:
         super().__init__()
@@ -110,7 +112,7 @@ class Window(QMainWindow):
 
     def _on_search_changed(self, text: str):
         """Handle search text changes."""
-        print(f"Search text changed to: {text}")
+        self.searchTextChanged.emit(text)
 
     def _on_filter_changed(self, text: str):
-        print(f"Filter changed to: {text}")
+        self.filterChanged.emit(text)

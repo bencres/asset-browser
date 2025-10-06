@@ -23,16 +23,20 @@ class Presenter(QWidget):
         self.assets = self._load_assets()
         self.directory_tree = self._build_directory_tree(self.assets)
         
-        # Bind events to connect signals
-        self.win.treeItemSelected.connect(self.on_tree_item_clicked)
-        
+
         # Initial display - show all previews or root level
         self.previews = self._create_previews_list(self.assets)
+        self.bind_events()
         self.win.browser.draw_previews(self.previews)
         self.win.tree.draw_tree(self.directory_tree)
 
     def run(self):
         self.win.show()
+
+    def bind_events(self):
+        self.win.treeItemSelected.connect(self.on_tree_item_clicked)
+        self.win.searchTextChanged.connect(self.on_search_changed)
+        self.win.filterChanged.connect(self.on_filter_changed)
 
     def on_asset_preview_clicked(self, asset: dict):
         pass
@@ -240,4 +244,53 @@ class Presenter(QWidget):
 
         return previews
 
+    def on_search_changed(self, text: str):
+        filtered_assets = self.filter_assets_by_text(text)
+        self.win.browser.draw_previews(self._create_previews_list(filtered_assets))
 
+    def on_filter_changed(self, text: str):
+        print(f"Filter changed: {text}")
+
+    def filter_assets_by_text(self, filter_text: str) -> List[Dict[str, Any]]:
+        """
+        Filter assets based on search text matching against name, directory path, and tags.
+        
+        Args:
+            filter_text: The text to search for (case-insensitive)
+        
+        Returns:
+            List of asset dictionaries that match the filter criteria
+        """
+        if not filter_text or not filter_text.strip():
+            # Return all assets if filter text is empty
+            return self.assets
+        
+        filtered_assets = []
+        search_term = filter_text.lower().strip()
+        
+        for asset in self.assets:
+            if not isinstance(asset, dict):
+                continue
+            
+            # Get asset properties
+            asset_name = (asset.get('name') or '').lower()
+            directory_path = (asset.get('directory_path') or '').lower()
+            tags = asset.get('tags', [])
+            
+            # Check if search term matches name
+            if search_term in asset_name:
+                filtered_assets.append(asset)
+                continue
+            
+            # Check if search term matches directory path
+            if search_term in directory_path:
+                filtered_assets.append(asset)
+                continue
+            
+            # Check if search term matches any tag
+            if isinstance(tags, list):
+                for tag in tags:
+                    if isinstance(tag, str) and search_term in tag.lower():
+                        filtered_assets.append(asset)
+                        break
+        return filtered_assets
