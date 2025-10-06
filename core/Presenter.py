@@ -38,7 +38,8 @@ class Presenter(QWidget):
         pass
 
     def on_asset_preview_double_clicked(self, asset_id: int):
-        print(f"Double clicked asset {asset_id}")
+        asset = next((a for a in self.assets if a.get('id') == asset_id), None)
+        self.win.show_asset_detail(asset)
 
     def on_back_clicked(self, widget: QWidget):
         pass

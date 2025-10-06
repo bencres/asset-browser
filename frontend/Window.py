@@ -1,8 +1,9 @@
 from typing import Any
 
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QSplitter
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QSplitter, QStackedWidget
 from frontend.Browser import Browser
+from frontend.Detail import Detail
 from frontend.Tree import Tree
 
 
@@ -23,20 +24,32 @@ class Window(QMainWindow):
         super().__init__()
         self.setWindowTitle("Universal Asset Browser")
         self.resize(800, 600)
+
         self.widget = QWidget()
-        self.splitter = QSplitter()
         self.layout = QVBoxLayout()
-        self.browser = Browser()
+        self.splitter = QSplitter()
+
         self.tree = Tree()
+        self.stacked = QStackedWidget()
+        self.browser = Browser()
+        self.detail = Detail()
+        self.stacked.addWidget(self.browser)
+        self.stacked.addWidget(self.detail)
         self.splitter.addWidget(self.tree)
-        self.splitter.addWidget(self.browser)
+        self.splitter.addWidget(self.stacked)
         self.splitter.setSizes([150, 650])
+
         self.layout.addWidget(self.splitter)
         self.widget.setLayout(self.layout)
         self.setCentralWidget(self.widget)
 
         # Connect tree's signal to window's signal
         self.tree.treeItemClicked.connect(self._on_tree_item_clicked)
+
+    def show_asset_detail(self, asset: dict) -> None:
+        """Show the detail view for the given asset."""
+        self.stacked.setCurrentWidget(self.detail)
+        self.detail.draw_details(asset)
 
     def _on_tree_item_clicked(self, path: str) -> None:
         """Internal handler that forwards tree clicks to presenter via signal."""
@@ -53,16 +66,6 @@ class Window(QMainWindow):
     #     """Bind a presenter/controller to this view."""
     #     # Connect Window's signal to Presenter's handler
     #     self.treeItemSelected.connect(self.presenter.on_tree_item_clicked)
-
-    # UML: + onAssetPreviewClicked(a: Asset)
-    def onAssetPreviewClicked(self, a: Any) -> None:
-        """Handle single-click on an asset preview."""
-        pass
-
-    # UML: + onAssetPreviewDoubleClicked(a: Asset)
-    def onAssetPreviewDoubleClicked(self, a: Any) -> None:
-        """Handle double-click on an asset preview."""
-        pass
 
     # UML: + onBackClicked(w: QWidget)
     def onBackClicked(self, w: QWidget) -> None:  # type: ignore[name-defined]
