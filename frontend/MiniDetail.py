@@ -1,10 +1,10 @@
 from typing import Optional
 import os
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QScrollArea, QFrame
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea, QFrame, QPushButton
 )
 
 
@@ -19,6 +19,8 @@ class MiniDetail(QWidget):
 
     This view appears in the splitter when a preview is clicked.
     """
+
+    closeClicked = Signal()  # Emitted when close button is clicked
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -45,7 +47,9 @@ class MiniDetail(QWidget):
         content_layout.setSpacing(12)
         content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        # Title
+        # Header with title and close button
+        header_layout = QHBoxLayout()
+
         title_label = QLabel("Asset Info")
         title_label.setStyleSheet("""
             QLabel {
@@ -55,7 +59,36 @@ class MiniDetail(QWidget):
                 padding-bottom: 5px;
             }
         """)
-        content_layout.addWidget(title_label)
+        header_layout.addWidget(title_label)
+        header_layout.addStretch()
+
+        # Close button with X icon
+        self.btn_close = QPushButton("✕")
+        self.btn_close.setFixedSize(24, 24)
+        self.btn_close.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_close.clicked.connect(self._on_close_clicked)
+        self.btn_close.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                border: none;
+                color: #888888;
+                font-size: 16pt;
+                font-weight: bold;
+                border-radius: 4px;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #3d3d3d;
+                color: #e0e0e0;
+            }
+            QPushButton:pressed {
+                background-color: #4a9eff;
+                color: #ffffff;
+            }
+        """)
+        header_layout.addWidget(self.btn_close)
+
+        content_layout.addLayout(header_layout)
 
         # Separator
         separator1 = QFrame()
@@ -178,6 +211,10 @@ class MiniDetail(QWidget):
             }
         """)
 
+    def _on_close_clicked(self):
+        """Handle close button click."""
+        self.closeClicked.emit()
+
     def show_asset(self, asset: dict) -> None:
         """
         Display asset information.
@@ -225,8 +262,8 @@ class MiniDetail(QWidget):
         if isinstance(tags, list) and tags:
             # Create styled tag chips
             tags_html = ' '.join([
-                                     f'<span style="background-color: #3d3d3d; padding: 3px 8px; border-radius: 10px; margin-right: 5px;">{tag}</span>'
-                                     for tag in tags])
+                f'<span style="background-color: #3d3d3d; padding: 3px 8px; border-radius: 10px; margin-right: 5px;">{tag}</span>'
+                for tag in tags])
             self.tags_label.setText(tags_html)
         elif isinstance(tags, str) and tags:
             self.tags_label.setText(tags)
