@@ -53,6 +53,9 @@ class SyncService:
 
         for asset in assets:
             if 'directory_path' in asset:
-                assets_by_path[asset['directory_path']] = asset
+                key = asset['directory_path']
+                value = asset
+                del value['directory_path']
+                assets_by_path[key] = value
 
         return assets_by_path
