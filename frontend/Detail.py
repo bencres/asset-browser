@@ -21,7 +21,6 @@ class Detail(QWidget):
     - Tags (editable)
     """
 
-    import_clicked = Signal(dict)  # Emits the asset payload
     back_clicked = Signal()
     save_clicked = Signal(dict)  # Emits the updated asset data
 
@@ -74,14 +73,9 @@ class Detail(QWidget):
         self.btn_cancel.clicked.connect(self._on_cancel_clicked)
         self.btn_cancel.setVisible(False)
 
-        self.btn_import = QPushButton("Import")
-        self.btn_import.setMaximumWidth(100)
-        self.btn_import.clicked.connect(self._on_import_clicked)
-
         button_layout.addWidget(self.btn_edit)
         button_layout.addWidget(self.btn_save)
         button_layout.addWidget(self.btn_cancel)
-        button_layout.addWidget(self.btn_import)
 
         content_layout.addLayout(button_layout)
 
@@ -362,8 +356,3 @@ class Detail(QWidget):
         if self.current_asset:
             self.display_metadata(self.current_asset)
         self._set_edit_mode(False)
-
-    def _on_import_clicked(self) -> None:
-        """Handle import button click."""
-        if self.current_asset:
-            self.import_clicked.emit(self.current_asset)
