@@ -22,6 +22,7 @@ class Presenter(QWidget):
             print(f"Error setting adapter! {e}")
 
         self.assets = self._load_assets()
+        print(self.assets)
         self.directory_tree = self._build_directory_tree(self.assets)
         
 

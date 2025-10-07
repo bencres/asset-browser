@@ -1,4 +1,6 @@
 import requests
+import pathlib as pl
+
 class SyncService:
     def __init__(self):
         pass
@@ -12,7 +14,6 @@ class SyncService:
             - For each asset candidate, store its absolute path in a set
                 - For now, asset candidates are directories containing a meta.yaml file
             - Store the meta.yaml file's data in a dict, key is the filepath and value is a dict of asset data
-                - If meta.yaml is empty,
         3. Iterate over server assets and compare to local assets
             - When a server asset is not found locally, flag it
         4. Iterate over local assets and compare to server assets
@@ -22,15 +23,13 @@ class SyncService:
                     - If there is no meta.yaml, create a new empty one
         5. Log the results in the `meta` subdirectory of the root directory
         """
-        assets = self.get_assets(server_url + '/assets')
-        assets_as_k_path_to_v_meta = self.store_assets_by_path(assets)
+        assets = self._get_assets(server_url + '/assets')
+        assets_as_k_path_to_v_meta = self._store_assets_by_path(assets)
 
 
-
-        pass
-
-    def get_assets(self, url):
+    def _get_assets(self, url):
         """Get assets from the server."""
+        # TODO: The same method is implemented in `asset_service.py`. Consider refactoring.
         try:
             response = requests.get(url)
             response.raise_for_status()
@@ -38,7 +37,7 @@ class SyncService:
         except Exception as e:
             print(e)
 
-    def store_assets_by_path(self, assets: dict) -> dict:
+    def _store_assets_by_path(self, assets: dict) -> dict:
         """Stores assets by their directory path in a dict.
 
         Args:
@@ -59,3 +58,32 @@ class SyncService:
                 assets_by_path[key] = value
 
         return assets_by_path
+
+    def _get_local_asset_dir_paths(self, asset_directory_path: str) -> set:
+        """Get asset directory paths from the local filesystem.
+        
+        Args:
+            asset_directory_path (str): Path to the asset directory
+            
+        Returns:
+            set: Set of absolute paths to directories containing meta.yaml files
+        """
+        asset_paths = set()
+        p = pl.Path(asset_directory_path)
+
+        if not p.exists():
+            return asset_paths
+
+        for p in p.rglob("*"):
+            if p.is_dir() and p.name != 'meta': # Ignore the 'meta' subdirectory
+                meta_file = p / 'meta.yaml'
+                if meta_file.exists():
+                    asset_paths.add(str(p.absolute()))
+
+        return asset_paths
+
+    def _get_meta_files_from_dirs(self, assets):
+        """Get the meta file from each asset's directory."""
+
+
+
