@@ -41,14 +41,29 @@ class Presenter(QWidget):
         self.win.filterChanged.connect(self.on_filter_changed)
         self.win.scanClicked.connect(self.on_scan_clicked)
         self.win.importClicked.connect(self.on_import_clicked)
+        self.win.toolbar.logViewerClicked.connect(self.on_log_viewer_clicked)
 
     def on_scan_clicked(self):
         sync_result = self.asset_service.sync()
+
+        # Reload assets
         self.assets = self._load_assets()
         self.directory_tree = self._build_directory_tree(self.assets)
         self.previews = self._create_previews_list(self.assets)
         self.win.browser.draw_previews(self.previews)
         self.win.tree.draw_tree(self.directory_tree)
+
+        # Show log viewer with results
+        self.win.show_log_viewer(sync_result)
+
+    def on_log_viewer_clicked(self):
+        """Handle log viewer button click - show the last sync result."""
+        last_result = self.asset_service.sync_service.get_last_sync_result()
+
+        if last_result:
+            self.win.show_log_viewer(last_result)
+        else:
+            self.win.show_message("No sync logs available. Run a scan first.")
 
     def on_import_clicked(self):
         self.win.show_message("Import clicked!")
