@@ -4,7 +4,7 @@ import pathlib as pl
 class SyncService:
     def __init__(self, server_url: str, asset_directory_path: str):
         self.server_url = server_url
-        self.asset_directory_path = pl.Path(asset_directory_path)
+        self.local_asset_directory_path = pl.Path(asset_directory_path)
 
     def sync(self):
         """
@@ -24,8 +24,10 @@ class SyncService:
                     - If there is no meta.yaml, create a new empty one
         5. Log the results in the `meta` subdirectory of the root directory
         """
-        assets = self._get_assets()
-        assets_as_k_path_to_v_meta = self._store_assets_by_path(assets)
+        server_assets = self._get_assets()
+        server_assets_as_k_path_to_v_data = self._store_assets_by_path(server_assets)
+        local_asset_dir_paths = self._get_local_asset_dir_paths(str(self.local_asset_directory_path))
+        self._sync_local_assets_with_server_assets(local_asset_dir_paths, server_assets)
 
 
     def _get_assets(self):
@@ -53,10 +55,7 @@ class SyncService:
 
         for asset in assets:
             if 'directory_path' in asset:
-                key = asset['directory_path']
-                value = asset
-                del value['directory_path']
-                assets_by_path[key] = value
+                assets_by_path[asset['directory_path']] = asset
 
         return assets_by_path
 
@@ -87,8 +86,12 @@ class SyncService:
         """Get the meta file from each asset's directory."""
         pass
 
-    def _compare_local_paths_to_server_paths(self, local_asset_dir_paths: set, server_assets: list):
+    def _sync_local_assets_with_server_assets(self, local_asset_dir_paths: set, server_assets: list):
         """Compare local asset paths to server asset paths."""
+        # TODO: normalize paths.
+        for a in server_assets:
+            if not a["directory_path"].startswith("/"):
+                a["directory_path"] = "/" + a["directory_path"]
         for a in server_assets:
             if a["directory_path"] in local_asset_dir_paths:
                 continue
@@ -99,20 +102,24 @@ class SyncService:
 
         for la in local_asset_dir_paths:
             if la not in server_asset_dir_paths:
+                print(f"Missing asset in server: {la}")
                 self._handle_missing_asset_in_server(self._create_local_asset_from_path(la))
 
     def _handle_missing_asset_in_server(self, asset_request_body):
         """Handle missing asset in server."""
         # POST the missing asset
-
         try:
-            requests.post(self.server_url, asset_request_body)
-        except Exception as e:
-            print(e)
+            print(f"POSTing missing asset: {asset_request_body}")
+            response = requests.post(self.server_url + "/assets", json=asset_request_body)
+            response.raise_for_status()  # Raise an exception for bad status codes
+            print("POSTed!")
+        except requests.exceptions.RequestException as e:
+            print(f"Error posting asset: {e}")
 
     def _handle_missing_asset_in_local(self, asset):
         """Handle missing asset in local."""
-        # Warn the user
+        # TODO: Warn the user.
+        print(f"Asset {asset['name']} is missing locally.")
 
     def _create_local_asset_from_path(self, asset_path: str) -> dict:
         """Get the local asset from the given path."""
@@ -136,6 +143,3 @@ class SyncService:
     def _parse_meta_file(self, meta_file_path: str):
         """Parse the meta file."""
         pass
-
-
-

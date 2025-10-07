@@ -8,8 +8,7 @@ class AssetService:
     def __init__(self, server_url: str, asset_directory_path: str):
         self.url = server_url
         self.asset_directory_path = pl.Path(asset_directory_path)
-        self.sync_service = SyncService()
-        self.test()
+        self.sync_service = SyncService(server_url, asset_directory_path)
 
     def get_assets(self):
         try:
@@ -23,7 +22,4 @@ class AssetService:
         pass
 
     def sync(self):
-        self.sync_service.sync(self.url, str(self.asset_directory_path))
-
-    def test(self):
-        pass
+        self.sync_service.sync()

@@ -152,9 +152,10 @@ class Browser(QWidget):
 
         # Calculate columns based on available width
         # TODO: fix these magic numbers
-        cols = max(1, (self.width() - 40) // 140)
-        if cols == 0:
-            cols = 4  # Fallback
+        # cols = max(1, (self.width() - 40) // 140)
+        # if cols == 0:
+        #     cols = 4  # Fallback
+        cols = 4
         
         row, col = 0, 0
 

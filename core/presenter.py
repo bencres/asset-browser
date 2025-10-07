@@ -22,11 +22,8 @@ class Presenter(QWidget):
             print(f"Error setting adapter! {e}")
 
         self.assets = self._load_assets()
-        print(self.assets)
         self.directory_tree = self._build_directory_tree(self.assets)
-        
 
-        # Initial display - show all previews or root level
         self.previews = self._create_previews_list(self.assets)
         self.bind_events()
         self.win.browser.draw_previews(self.previews)
@@ -47,8 +44,6 @@ class Presenter(QWidget):
 
     def on_scan_clicked(self):
         self.asset_service.sync()
-        print("Scan clicked")
-
 
     def on_import_clicked(self):
         print("Import clicked")
