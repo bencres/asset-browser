@@ -102,17 +102,14 @@ class SyncService:
 
         for la in local_asset_dir_paths:
             if la not in server_asset_dir_paths:
-                print(f"Missing asset in server: {la}")
                 self._handle_missing_asset_in_server(self._create_local_asset_from_path(la))
 
     def _handle_missing_asset_in_server(self, asset_request_body):
         """Handle missing asset in server."""
         # POST the missing asset
         try:
-            print(f"POSTing missing asset: {asset_request_body}")
             response = requests.post(self.server_url + "/assets", json=asset_request_body)
             response.raise_for_status()  # Raise an exception for bad status codes
-            print("POSTed!")
         except requests.exceptions.RequestException as e:
             print(f"Error posting asset: {e}")
 

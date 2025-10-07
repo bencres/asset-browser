@@ -27,7 +27,7 @@ uvicorn_process = None
 exit_code = None
 
 try:
-    print("Starting FastAPI server...")
+    print("Starting server...")
     uvicorn_process = subprocess.Popen(
         UVICORN_COMMAND,
         cwd=BACKEND_DIR,
@@ -38,25 +38,26 @@ try:
     # Server needs a sec to start
     import time
     time.sleep(1)
-    print("FastAPI server process started. Continuing with GUI launch.")
+    print("Server process started. Continuing with GUI launch...")
 
     app = QApplication(sys.argv)
     model = AssetService(SERVER_URL, LOCAL_ASSETS_DIR)
     view = Window()
     presenter = Presenter(view, model)
     presenter.run()
+    print("GUI launched.")
     exit_code = app.exec()
 
 except Exception as e:
     print(f"An error occurred during application launch: {e}", file=sys.stderr)
 finally:
     if uvicorn_process and uvicorn_process.poll() is None:
-        print("Terminating FastAPI server process...")
+        print("Terminating server process...")
         uvicorn_process.terminate()
         uvicorn_process.wait(timeout=5)
         if uvicorn_process.poll() is None:
             uvicorn_process.kill()
-        print("FastAPI server process terminated.")
+        print("Server process terminated.")
 
     if exit_code:
         sys.exit(exit_code)
