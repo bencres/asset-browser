@@ -2,10 +2,11 @@ import requests
 import pathlib as pl
 
 class SyncService:
-    def __init__(self):
-        pass
+    def __init__(self, server_url: str, asset_directory_path: str):
+        self.server_url = server_url
+        self.asset_directory_path = pl.Path(asset_directory_path)
 
-    def sync(self, server_url: str, asset_directory_path: str):
+    def sync(self):
         """
         1. Get list of assets from server
             - Store in a dict, key is the directory_path and value is the rest of the asset data
@@ -23,15 +24,15 @@ class SyncService:
                     - If there is no meta.yaml, create a new empty one
         5. Log the results in the `meta` subdirectory of the root directory
         """
-        assets = self._get_assets(server_url + '/assets')
+        assets = self._get_assets()
         assets_as_k_path_to_v_meta = self._store_assets_by_path(assets)
 
 
-    def _get_assets(self, url):
+    def _get_assets(self):
         """Get assets from the server."""
         # TODO: The same method is implemented in `asset_service.py`. Consider refactoring.
         try:
-            response = requests.get(url)
+            response = requests.get(self.server_url + "/assets")
             response.raise_for_status()
             return response.json()
         except Exception as e:
@@ -84,6 +85,43 @@ class SyncService:
 
     def _get_meta_files_from_dirs(self, assets):
         """Get the meta file from each asset's directory."""
+        pass
+
+    def _compare_local_paths_to_server_paths(self, local_asset_dir_paths: set, server_assets: list):
+        """Compare local asset paths to server asset paths."""
+        for a in server_assets:
+            if a["directory_path"] in local_asset_dir_paths:
+                continue
+            else:
+                self._handle_missing_asset_in_local(a)
+
+        server_asset_dir_paths = set([a["directory_path"] for a in server_assets])
+
+        for la in local_asset_dir_paths:
+            if la not in server_asset_dir_paths:
+                self._handle_missing_asset_in_server(self._get_local_asset_from_path(la))
+
+    def _handle_missing_asset_in_server(self, asset_request_body):
+        """Handle missing asset in server."""
+        # POST the missing asset
+
+        try:
+            requests.post(self.server_url, asset_request_body)
+        except Exception as e:
+            print(e)
+
+    def _handle_missing_asset_in_local(self, asset):
+        """Handle missing asset in local."""
+        # Warn the user
+
+    def _get_local_asset_from_path(self, asset_path: str) -> dict:
+        """Get the local asset from the given path."""
+        pass
+
+
+    def _parse_meta_file(self, meta_file_path: str):
+        """Parse the meta file."""
+        pass
 
 
 
