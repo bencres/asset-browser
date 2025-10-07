@@ -155,7 +155,7 @@ class Browser(QWidget):
         # cols = max(1, (self.width() - 40) // 140)
         # if cols == 0:
         #     cols = 4  # Fallback
-        cols = 4
+        cols = 5
         
         row, col = 0, 0
 

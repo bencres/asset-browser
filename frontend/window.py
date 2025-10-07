@@ -27,7 +27,7 @@ class Window(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Universal Asset Browser")
-        self.resize(1000, 700)
+        self.resize(1200, 700)
 
         self.widget = QWidget()
         self.layout = QVBoxLayout()
@@ -66,7 +66,7 @@ class Window(QMainWindow):
 
         # Set initial splitter sizes [tree, browser, mini_detail]
         # Start with mini detail hidden (size 0)
-        self.main_splitter.setSizes([150, 800, 0])
+        self.main_splitter.setSizes([150, 1050, 0])
 
         self.layout.addWidget(self.main_splitter)
 

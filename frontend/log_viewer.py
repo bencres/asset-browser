@@ -194,7 +194,12 @@ class LogViewer(QWidget):
     def _update_summary(self):
         """Update the summary section with sync result data."""
         if not self.sync_result:
-            return
+            self.duration_label.setText(f"Duration: None")
+            self.server_count_label.setText(f"Server Assets: None")
+            self.local_count_label.setText(f"Local Assets: None")
+            self.posted_label.setText(f"Posted: None")
+            self.missing_label.setText(f"Missing Locally: None")
+            self.error_label.setText(f"Errors: None")
 
         summary = self.sync_result.get_summary()
 
