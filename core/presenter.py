@@ -50,10 +50,8 @@ class Presenter(QWidget):
         self.win.browser.draw_previews(self.previews)
         self.win.tree.draw_tree(self.directory_tree)
 
-
     def on_import_clicked(self):
-        print("Import clicked")
-        pass
+        self.win.show_message("Import clicked!")
 
     def _get_asset_by_id(self, asset_id: int) -> dict:
         # TODO: this is a quick fix. Should actually query the database.

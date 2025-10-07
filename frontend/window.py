@@ -7,6 +7,7 @@ from frontend.detail import Detail
 from frontend.tree import Tree
 from frontend.toolbar import Toolbar
 from frontend.mini_detail import MiniDetail
+from frontend.log_viewer import LogViewer
 
 
 class Window(QMainWindow):
@@ -46,8 +47,10 @@ class Window(QMainWindow):
         self.stacked = QStackedWidget()
         self.browser = Browser()
         self.detail = Detail()
+        self.log_viewer = LogViewer()
         self.stacked.addWidget(self.browser)
         self.stacked.addWidget(self.detail)
+        self.stacked.addWidget(self.log_viewer)
         self.main_splitter.addWidget(self.stacked)
 
         # Right: Mini detail view (initially hidden)
@@ -73,6 +76,7 @@ class Window(QMainWindow):
         self.toolbar.importClicked.connect(self._on_import_clicked)
         self.toolbar.scanClicked.connect(self._on_scan_clicked)
         self.mini_detail.closeClicked.connect(self.hide_mini_detail)
+        self.log_viewer.closeRequested.connect(self.show_browser)
 
     def show_browser(self) -> None:
         """Show the browser view and restore mini detail if it was visible."""
@@ -93,6 +97,20 @@ class Window(QMainWindow):
         # Switch to detail view
         self.stacked.setCurrentWidget(self.detail)
         self.detail.draw_details(asset)
+
+    def show_log_viewer(self, sync_result) -> None:
+        """
+        Show the log viewer with sync results.
+        
+        Args:
+            sync_result: SyncResult object from sync operation
+        """
+        # Hide mini detail when showing log viewer
+        self.hide_mini_detail()
+        
+        # Set the sync result and switch to log viewer
+        self.log_viewer.set_sync_result(sync_result)
+        self.stacked.setCurrentWidget(self.log_viewer)
 
     def show_mini_detail(self, asset: dict) -> None:
         """
