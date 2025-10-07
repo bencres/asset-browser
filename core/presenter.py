@@ -44,26 +44,43 @@ class Presenter(QWidget):
         self.win.toolbar.logViewerClicked.connect(self.on_log_viewer_clicked)
 
     def on_scan_clicked(self):
+        self.win.show_message("Starting sync operation...", "info")
+        
         sync_result = self.asset_service.sync()
-
+        
         # Reload assets
         self.assets = self._load_assets()
         self.directory_tree = self._build_directory_tree(self.assets)
         self.previews = self._create_previews_list(self.assets)
         self.win.browser.draw_previews(self.previews)
         self.win.tree.draw_tree(self.directory_tree)
-
+        
+        # Show completion message in status bar
+        summary = sync_result.get_summary()
+        if summary['error_count'] > 0:
+            self.win.show_message(
+                f"Sync completed with {summary['error_count']} errors", 
+                "warning", 
+                10000
+            )
+        else:
+            self.win.show_message(
+                f"Sync completed successfully - {summary['assets_posted']} assets posted", 
+                "success", 
+                5000
+            )
+    
+    def on_import_clicked(self):
+        self.win.show_message("Import functionality coming soon!", "info", 3000)
+    
     def on_log_viewer_clicked(self):
-        """Handle log viewer button click - show the last sync result."""
+        """Show log viewer with most recent sync results."""
         last_result = self.asset_service.sync_service.get_last_sync_result()
-
+        
         if last_result:
             self.win.show_log_viewer(last_result)
         else:
-            self.win.show_message("No sync logs available. Run a scan first.")
-
-    def on_import_clicked(self):
-        self.win.show_message("Import clicked!")
+            self.win.show_message("No sync logs available. Run a scan first.", "warning", 3000)
 
     def _get_asset_by_id(self, asset_id: int) -> dict:
         # TODO: this is a quick fix. Should actually query the database.

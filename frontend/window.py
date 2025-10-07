@@ -8,6 +8,7 @@ from frontend.tree import Tree
 from frontend.toolbar import Toolbar
 from frontend.mini_detail import MiniDetail
 from frontend.log_viewer import LogViewer
+from frontend.status_bar import StatusBar
 
 
 class Window(QMainWindow):
@@ -67,6 +68,11 @@ class Window(QMainWindow):
         self.main_splitter.setSizes([200, 1000, 0])
 
         self.layout.addWidget(self.main_splitter)
+
+        # Create and add status bar at the bottom
+        self.status_bar = StatusBar()
+        self.layout.addWidget(self.status_bar)
+
         self.widget.setLayout(self.layout)
         self.setCentralWidget(self.widget)
 
@@ -101,13 +107,13 @@ class Window(QMainWindow):
     def show_log_viewer(self, sync_result) -> None:
         """
         Show the log viewer with sync results.
-        
+
         Args:
             sync_result: SyncResult object from sync operation
         """
         # Hide mini detail when showing log viewer
         self.hide_mini_detail()
-        
+
         # Set the sync result and switch to log viewer
         self.log_viewer.set_sync_result(sync_result)
         self.stacked.setCurrentWidget(self.log_viewer)
@@ -172,10 +178,16 @@ class Window(QMainWindow):
         self.filterChanged.emit(filter_text)
 
     # UML: + showMessage(msg)
-    def show_message(self, msg: str) -> None:
-        """Display a message to the user."""
-        # TODO: Implement message display (e.g., status bar or message box)
-        pass
+    def show_message(self, msg: str, message_type: str = "info", timeout: int = 5000) -> None:
+        """
+        Display a message to the user in the status bar.
+
+        Args:
+            msg: The message to display
+            message_type: Type of message ('info', 'warning', 'error', 'success')
+            timeout: Time in milliseconds before message clears (default: 5000ms)
+        """
+        self.status_bar.show_message(msg, message_type, timeout)
 
     # Remaining UML methods...
     def onBackClicked(self, w: QWidget) -> None:
