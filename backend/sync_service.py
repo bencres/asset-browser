@@ -257,3 +257,10 @@ class SyncService:
         result.add_log(SyncLogLevel.WARNING, f"Server asset not found locally: {asset_name}", asset_path)
         result.assets_missing_locally.append(asset)
 
+    def _create_local_asset_from_path(self, asset_path: str) -> dict:
+        """Create a local asset from a directory path."""
+        return {
+            'name': pl.Path(asset_path).name,
+            'directory_path': asset_path
+        }
+
