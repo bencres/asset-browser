@@ -48,7 +48,7 @@ class Presenter(QWidget):
         
         sync_result = self.asset_service.sync()
         
-        # Reload assets
+        # Refresh GUI
         self.assets = self._load_assets()
         self.directory_tree = self._build_directory_tree(self.assets)
         self.previews = self._create_previews_list(self.assets)

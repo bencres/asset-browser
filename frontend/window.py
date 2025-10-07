@@ -72,6 +72,10 @@ class Window(QMainWindow):
         # Create and add status bar at the bottom
         self.status_bar = StatusBar()
         self.layout.addWidget(self.status_bar)
+        self.layout.setSpacing(0)  # Ensure no gaps
+        self.layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
+        self.status_bar.setStyleSheet(self.status_bar.styleSheet())
+        self.status_bar.update()
 
         self.widget.setLayout(self.layout)
         self.setCentralWidget(self.widget)

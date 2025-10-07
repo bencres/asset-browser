@@ -1,40 +1,54 @@
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QFrame
 
 
-class StatusBar(QWidget):
+class StatusBar(QFrame):  # Changed from QWidget to QFrame
     """Status bar widget for displaying system messages and notifications."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        
+        # Set frame shape for better styling control
+        self.setFrameShape(QFrame.Shape.StyledPanel)
+        
+        # Set object name for stylesheet targeting
+        self.setObjectName("statusBar")
 
         # Setup layout
         layout = QHBoxLayout(self)
         layout.setContentsMargins(10, 5, 10, 5)
+        layout.setSpacing(0)
 
-        # Message label
+        # Message label with unique object name
         self.message_label = QLabel()
-        self.message_label.setStyleSheet("""
-            QLabel {
-                color: #FFFFFF;
-                font-size: 11pt;
-                padding: 2px;
-            }
-        """)
-        layout.addWidget(self.message_label)
+        self.message_label.setObjectName("statusBarMessage")
+        layout.addWidget(self.message_label, 1)  # Stretch factor
 
         # Set fixed height
-        self.setFixedHeight(32)
-        self.setStyleSheet("""
-            StatusBar {
-                background-color: #2d2d2d;
-                border-top: 1px solid #3d3d3d;
-            }
-        """)
+        self.setFixedHeight(28)
+        
+        # Apply styles
+        self._apply_styles()
 
         # Timer for auto-clearing messages
         self._clear_timer = QTimer(self)
         self._clear_timer.timeout.connect(self.clear)
+
+    def _apply_styles(self):
+        self.setStyleSheet("""
+            QFrame#statusBar {
+                background-color: #1a1a1a;
+                border-top: 2px solid #383838;
+                border-radius: 0px;
+            }
+            QLabel#statusBarMessage {
+                background-color: transparent;
+                color: #FFFFFF;
+                font-size: 11pt;
+                padding: 2px;
+                border: none;
+            }
+        """)
 
     def show_message(self, message: str, message_type: str = "info", timeout: int = 0):
         """Display a message in the status bar.
@@ -44,27 +58,45 @@ class StatusBar(QWidget):
             message_type: Type of message ('info', 'warning', 'error', 'success')
             timeout: Time in milliseconds before message clears (0 = no auto-clear)
         """
-        # Style based on message type
-        style = "QLabel { color: "
-        if message_type == "warning":
-            style += "#FFA500;"  # Orange
-        elif message_type == "error":
-            style += "#FF4444;"  # Red
-        elif message_type == "success":
-            style += "#44FF44;"  # Green
-        else:  # info
-            style += "#FFFFFF;"  # White
-        style += " }"
-
-        self.message_label.setStyleSheet(style)
+        # Color mapping
+        colors = {
+            "info": "#FFFFFF",      # White
+            "warning": "#FFA500",   # Orange
+            "error": "#FF4444",     # Red
+            "success": "#44FF44"    # Green
+        }
+        
+        color = colors.get(message_type, "#FFFFFF")
+        
+        # Apply style with maximum specificity
+        self.message_label.setStyleSheet(f"""
+            QLabel#statusBarMessage {{
+                color: {color};
+                font-size: 11pt;
+                padding: 2px;
+                background-color: transparent;
+                border: none;
+            }}
+        """)
         self.message_label.setText(message)
 
         # Handle auto-clear
         if timeout > 0:
             self._clear_timer.start(timeout)
+        else:
+            self._clear_timer.stop()
 
     def clear(self):
         """Clear the current status message."""
         self._clear_timer.stop()
         self.message_label.setText("")
-        self.message_label.setStyleSheet("")
+        # Reset to default style
+        self.message_label.setStyleSheet("""
+            QLabel#statusBarMessage {
+                color: #FFFFFF;
+                font-size: 11pt;
+                padding: 2px;
+                background-color: transparent;
+                border: none;
+            }
+        """)
