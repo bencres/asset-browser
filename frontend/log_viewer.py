@@ -66,6 +66,7 @@ class LogViewer(QWidget):
     def _create_summary_section(self) -> QWidget:
         """Create the summary information section."""
         widget = QWidget()
+        widget.setObjectName("summaryWidget")  # Give it a unique name for styling
         layout = QVBoxLayout(widget)
 
         # Summary labels
@@ -78,13 +79,16 @@ class LogViewer(QWidget):
 
         # Style the summary section
         widget.setStyleSheet("""
-            QWidget {
-                background-color: #f5f5f5;
+            QWidget#summaryWidget {
+                background-color: #404040;
                 border-radius: 5px;
                 padding: 10px;
             }
-            QLabel {
+            QWidget#summaryWidget QLabel {
                 font-size: 12px;
+                color: #dedede;
+                background-color: transparent;
+                font-weight: 500;
             }
         """)
 
@@ -128,7 +132,7 @@ class LogViewer(QWidget):
         text_edit.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
         # Set monospace font for better log readability
-        font = QFont("Courier New", 10)
+        font = QFont("Courier New", 14)
         text_edit.setFont(font)
 
         text_edit.setStyleSheet("""
@@ -186,9 +190,13 @@ class LogViewer(QWidget):
         error_count = summary.get('error_count', 0)
         self.error_label.setText(f"Errors: {error_count}")
 
-        # Highlight errors in red
         if error_count > 0:
-            self.error_label.setStyleSheet("color: #ff4444; font-weight: bold;")
+            self.error_label.setStyleSheet("""
+                font-size: 12px;
+                color: #e31717;
+                background-color: transparent;
+                font-weight: bold;
+            """)
         else:
             self.error_label.setStyleSheet("")
 
