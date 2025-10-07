@@ -282,6 +282,7 @@ class Presenter(QWidget):
     def on_search_changed(self, text: str):
         filtered_assets = self.filter_assets_by_text(text)
         self.win.browser.draw_previews(self._create_previews_list(filtered_assets))
+        self.win.show_browser()
 
     def on_filter_changed(self, text: str):
         print(f"Filter changed: {text}")
