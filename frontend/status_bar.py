@@ -8,15 +8,7 @@ class StatusBar(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.default_style = """
-            QLabel#statusBarMessage {
-                color: #FFFFFF;
-                font-size: 12pt;
-                padding: 2px;
-                background-color: transparent;
-                border: none;
-            }
-        """
+
         
         # Set frame shape for better styling control
         self.setFrameShape(QFrame.Shape.StyledPanel)
@@ -44,20 +36,26 @@ class StatusBar(QFrame):
         self._clear_timer = QTimer(self)
         self._clear_timer.timeout.connect(self.clear)
 
+    @staticmethod
+    def get_default_style(text_color="#FFFFFF"):
+        return f"""
+            QLabel#statusBarMessage {{
+                color: {text_color};
+                font-size: 12pt;
+                padding: 2px;
+                background-color: transparent;
+                border: none;
+            }}
+        """
+
     def _apply_styles(self):
-        self.setStyleSheet("""
-            QFrame#statusBar {
+        self.setStyleSheet(f"""
+            QFrame#statusBar {{
                 background-color: #141414;
                 border-top: 2px solid #4a4a4a;
                 border-radius: 0px;
-            }
-            QLabel#statusBarMessage {
-                background-color: transparent;
-                color: #FFFFFF;
-                font-size: 12pt;
-                padding: 2px;
-                border: none;
-            }
+            }}
+            {self.get_default_style()}
         """)
 
     def show_message(self, message: str, message_type: str = "info", timeout: int = 0):
@@ -76,17 +74,9 @@ class StatusBar(QFrame):
             "success": "#44FF44"    # Green
         }
         
-        color = colors.get(message_type, "#FFFFFF")
+        message_color = colors.get(message_type, "#FFFFFF")
         
-        self.message_label.setStyleSheet(f"""
-            QLabel#statusBarMessage {{
-                color: {color};
-                font-size: 12pt;
-                padding: 2px;
-                background-color: transparent;
-                border: none;
-            }}
-        """)
+        self.message_label.setStyleSheet(self.get_default_style(text_color=message_color))
         self.message_label.setText(message)
 
         # Handle auto-clear
@@ -100,4 +90,4 @@ class StatusBar(QFrame):
         self._clear_timer.stop()
         self.message_label.setText("")
         # Reset to default style
-        self.message_label.setStyleSheet(self.default_style)
+        self.message_label.setStyleSheet(self.get_default_style())
