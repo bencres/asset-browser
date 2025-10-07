@@ -75,6 +75,7 @@ class Window(QMainWindow):
         self.detail.back_clicked.connect(self.show_browser)
         self.toolbar.importClicked.connect(self._on_import_clicked)
         self.toolbar.scanClicked.connect(self._on_scan_clicked)
+        self.toolbar.logViewerClicked.connect(self._on_log_viewer_clicked)
         self.mini_detail.closeClicked.connect(self.hide_mini_detail)
         self.log_viewer.closeRequested.connect(self.show_browser)
 
@@ -207,3 +208,10 @@ class Window(QMainWindow):
 
     def _on_scan_clicked(self):
         self.scanClicked.emit()
+    
+    def _on_log_viewer_clicked(self):
+        """Handle log viewer button click - show the last sync result."""
+        # This will be handled by the presenter
+        # For now, just show the log viewer if there's a result
+        if self.log_viewer.sync_result:
+            self.show_log_viewer(self.log_viewer.sync_result)
