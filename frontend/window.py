@@ -22,11 +22,12 @@ class Window(QMainWindow):
     filterChanged = Signal(str)
     importClicked = Signal()
     scanClicked = Signal()
+    logViewerClicked = Signal()
 
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Universal Asset Browser")
-        self.resize(1200, 700)
+        self.resize(1000, 700)
 
         self.widget = QWidget()
         self.layout = QVBoxLayout()
@@ -65,7 +66,7 @@ class Window(QMainWindow):
 
         # Set initial splitter sizes [tree, browser, mini_detail]
         # Start with mini detail hidden (size 0)
-        self.main_splitter.setSizes([200, 1000, 0])
+        self.main_splitter.setSizes([150, 800, 0])
 
         self.layout.addWidget(self.main_splitter)
 
@@ -85,6 +86,7 @@ class Window(QMainWindow):
         self.detail.back_clicked.connect(self.show_browser)
         self.toolbar.importClicked.connect(self._on_import_clicked)
         self.toolbar.scanClicked.connect(self._on_scan_clicked)
+        self.toolbar.logViewerClicked.connect(self._on_log_clicked)
         self.mini_detail.closeClicked.connect(self.hide_mini_detail)
         self.log_viewer.closeRequested.connect(self.show_browser)
 
@@ -223,3 +225,6 @@ class Window(QMainWindow):
 
     def _on_scan_clicked(self):
         self.scanClicked.emit()
+
+    def _on_log_clicked(self):
+        self.logViewerClicked.emit()

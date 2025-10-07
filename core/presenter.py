@@ -41,7 +41,7 @@ class Presenter(QWidget):
         self.win.filterChanged.connect(self.on_filter_changed)
         self.win.scanClicked.connect(self.on_scan_clicked)
         self.win.importClicked.connect(self.on_import_clicked)
-        self.win.toolbar.logViewerClicked.connect(self.on_log_viewer_clicked)
+        self.win.logViewerClicked.connect(self.on_log_viewer_clicked)
 
     def on_scan_clicked(self):
         self.win.show_message("Starting sync operation...", "info")
