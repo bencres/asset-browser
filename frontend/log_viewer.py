@@ -58,6 +58,23 @@ class LogViewer(QWidget):
 
         close_btn = QPushButton("✕")
         close_btn.setFixedSize(30, 30)
+        close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #1e1e1e;
+                color: #e0e0e0;
+                border: 2px solid #3d3d3d;
+                border-radius: 6px;
+                font-size: 32pt;
+                padding-bottom: 4px;
+            }
+            QPushButton:hover {
+                border: 2px solid #4d4d4d;
+                background-color: #2d2d2d;
+            }
+            QPushButton:pressed {
+                background-color: #3d3d3d;
+            }
+        """)
         close_btn.clicked.connect(self.closeRequested.emit)
         layout.addWidget(close_btn)
 
