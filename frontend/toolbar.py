@@ -88,14 +88,15 @@ class Toolbar(QWidget):
     def _set_log_icon(self):
         """Set the icon for the log viewer button using Unicode or create a simple icon."""
         # Use a document/list icon as text
-        self.btn_log_viewer.setText("📋")
+        self.btn_log_viewer.setText("≡")
         self.btn_log_viewer.setStyleSheet("""
             QPushButton {
                 background-color: #1e1e1e;
                 color: #e0e0e0;
                 border: 2px solid #3d3d3d;
                 border-radius: 6px;
-                font-size: 16pt;
+                font-size: 32pt;
+                padding-bottom: 4px;
             }
             QPushButton:hover {
                 border: 2px solid #4d4d4d;

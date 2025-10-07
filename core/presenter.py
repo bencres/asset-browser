@@ -53,9 +53,6 @@ class Presenter(QWidget):
         self.win.browser.draw_previews(self.previews)
         self.win.tree.draw_tree(self.directory_tree)
 
-        # Show log viewer with results
-        self.win.show_log_viewer(sync_result)
-
     def on_log_viewer_clicked(self):
         """Handle log viewer button click - show the last sync result."""
         last_result = self.asset_service.sync_service.get_last_sync_result()
@@ -104,6 +101,7 @@ class Presenter(QWidget):
         
         # Update the browser display
         self.win.browser.draw_previews(previews)
+        self.win.show_browser()
 
     def on_edit_metadata(self, asset: dict):
         pass
