@@ -57,6 +57,7 @@ class LogViewer(QWidget):
         layout.addStretch()
 
         close_btn = QPushButton("✕")
+        close_btn.setToolTip("Close Logs")
         close_btn.setFixedSize(30, 30)
         close_btn.setStyleSheet("""
             QPushButton {

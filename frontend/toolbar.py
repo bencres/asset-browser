@@ -34,11 +34,12 @@ class Toolbar(QWidget):
 
         # Scan Asset Directory button
         self.btn_scan = QPushButton("Scan Asset Directory")
+        self.btn_scan.setToolTip("Scan asset directory for new assets")
         self.btn_scan.clicked.connect(self._scan_clicked)
 
         # Log Viewer button (icon only)
         self.btn_log_viewer = QPushButton()
-        self.btn_log_viewer.setToolTip("View Sync Logs")
+        self.btn_log_viewer.setToolTip("View Logs")
         self.btn_log_viewer.setFixedSize(36, 36)
         self.btn_log_viewer.clicked.connect(self._log_viewer_clicked)
         self._set_log_icon()
@@ -48,7 +49,8 @@ class Toolbar(QWidget):
         search_label.setStyleSheet("color: #e0e0e0; font-weight: 500;")
 
         self.search_bar = QLineEdit()
-        self.search_bar.setPlaceholderText("Search assets by name...")
+        self.search_bar.setToolTip("Search assets by name, tag, or type...")
+        self.search_bar.setPlaceholderText("Search assets by name, tag, or type...")
         self.search_bar.setMinimumWidth(250)
         self.search_bar.setClearButtonEnabled(True)
         self.search_bar.textChanged.connect(self._on_search_changed)
@@ -58,6 +60,7 @@ class Toolbar(QWidget):
         filter_label.setStyleSheet("color: #e0e0e0; font-weight: 500;")
 
         self.filter_combo = QComboBox()
+        self.filter_combo.setToolTip("Filter assets by type...")
         self.filter_combo.setMinimumWidth(150)
         self.filter_combo.addItems([
             "All Assets",

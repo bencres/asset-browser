@@ -53,6 +53,7 @@ class Detail(QWidget):
         button_layout = QHBoxLayout()
 
         self.btn_back = QPushButton("← Back")
+        self.btn_back.setToolTip("Back to asset list")
         self.btn_back.setMaximumWidth(100)
         self.btn_back.clicked.connect(self._on_back_clicked)
 
@@ -60,15 +61,18 @@ class Detail(QWidget):
         button_layout.addStretch()
 
         self.btn_edit = QPushButton("Edit")
+        self.btn_edit.setToolTip("Edit asset metadata")
         self.btn_edit.setMaximumWidth(100)
         self.btn_edit.clicked.connect(self._on_edit_clicked)
 
         self.btn_save = QPushButton("Save")
+        self.btn_save.setToolTip("Save changes to asset metadata")
         self.btn_save.setMaximumWidth(100)
         self.btn_save.clicked.connect(self._on_save_clicked)
         self.btn_save.setVisible(False)
 
         self.btn_cancel = QPushButton("Cancel")
+        self.btn_cancel.setToolTip("Cancel changes and return to asset list")
         self.btn_cancel.setMaximumWidth(100)
         self.btn_cancel.clicked.connect(self._on_cancel_clicked)
         self.btn_cancel.setVisible(False)
