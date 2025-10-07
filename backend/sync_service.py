@@ -92,10 +92,6 @@ class SyncService:
         self.local_asset_directory_path = pl.Path(asset_directory_path)
         self.last_sync_result: SyncResult = None
 
-    def get_last_sync_result(self) -> SyncResult:
-        """Get the result of the last sync operation."""
-        return self.last_sync_result
-
     def sync(self) -> SyncResult:
         """
         1. Get list of assets from server
@@ -135,6 +131,17 @@ class SyncService:
         result.add_log(SyncLogLevel.INFO, f"Sync completed in {result.duration:.2f} seconds")
         
         return result
+
+    def update_configuration(self, server_url: str = None, asset_directory_path: str = None):
+        """Update service configuration without losing sync history."""
+        if server_url:
+            self.server_url = server_url
+        if asset_directory_path:
+            self.local_asset_directory_path = pl.Path(asset_directory_path)
+
+    def get_last_sync_result(self) -> SyncResult:
+        """Get the result of the last sync operation."""
+        return self.last_sync_result
 
     def _get_assets(self, result: SyncResult):
         """Get assets from the server."""

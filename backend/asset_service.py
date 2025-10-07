@@ -1,7 +1,7 @@
 import pathlib as pl
 import requests
 
-from backend.sync_service import SyncService
+from backend.sync_service import SyncService, SyncResult
 
 
 class AssetService:
@@ -19,7 +19,9 @@ class AssetService:
             print(e)
 
     def set_asset_directory(self, directory_path: str):
-        pass
+        """Update the asset directory and recreate the sync service."""
+        self.asset_directory_path = pl.Path(directory_path)
+        self.sync_service = SyncService(self.url, directory_path)
 
-    def sync(self):
-        self.sync_service.sync()
+    def sync(self) -> SyncResult:
+        return self.sync_service.sync()
