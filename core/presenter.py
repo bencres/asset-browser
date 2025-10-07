@@ -44,6 +44,12 @@ class Presenter(QWidget):
 
     def on_scan_clicked(self):
         self.asset_service.sync()
+        self.assets = self._load_assets()
+        self.directory_tree = self._build_directory_tree(self.assets)
+        self.previews = self._create_previews_list(self.assets)
+        self.win.browser.draw_previews(self.previews)
+        self.win.tree.draw_tree(self.directory_tree)
+
 
     def on_import_clicked(self):
         print("Import clicked")
