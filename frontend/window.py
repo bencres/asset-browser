@@ -62,13 +62,13 @@ class Window(QMainWindow):
         self.main_splitter.addWidget(self.mini_detail)
 
         # Make the mini detail panel collapsible
-        self.main_splitter.setCollapsible(0, False)  # Tree cannot be collapsed
+        self.main_splitter.setCollapsible(0, True)  # Tree can be collapsed
         self.main_splitter.setCollapsible(1, False)  # Browser cannot be collapsed
         self.main_splitter.setCollapsible(2, True)  # Mini detail can be collapsed
 
         # Set initial splitter sizes [tree, browser, mini_detail]
         # Start with mini detail hidden (size 0)
-        self.main_splitter.setSizes([150, 1050, 0])
+        self.main_splitter.setSizes([0, 1200, 0])
 
         self.layout.addWidget(self.main_splitter)
 
@@ -159,9 +159,9 @@ class Window(QMainWindow):
             total = sum(current_sizes)
             # Redistribute space to show mini detail
             self.main_splitter.setSizes([
-                int(total * 0.15),  # tree: 15%
-                int(total * 0.65),  # browser: 65%
-                int(total * 0.20)  # mini detail: 20%
+                int(total * 0.0),  # tree: 15%
+                int(total * 0.75),  # browser: 65%
+                int(total * 0.25)  # mini detail: 20%
             ])
 
     def hide_mini_detail(self) -> None:

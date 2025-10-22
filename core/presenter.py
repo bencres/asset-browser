@@ -6,6 +6,7 @@ from typing import Any, Dict, List
 from frontend.window import Window
 from frontend.preview import Preview
 from backend.asset_service import AssetService
+from core import utils
 
 class Presenter(QWidget):
     def __init__(self, win: Window, asset_service: AssetService):
