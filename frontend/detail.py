@@ -23,6 +23,7 @@ class Detail(QWidget):
 
     back_clicked = Signal()
     save_clicked = Signal(dict)  # Emits the updated asset data
+    delete_clicked = Signal(int)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -65,6 +66,11 @@ class Detail(QWidget):
         self.btn_edit.setMaximumWidth(100)
         self.btn_edit.clicked.connect(self._on_edit_clicked)
 
+        self.btn_delete = QPushButton("Delete")
+        self.btn_delete.setToolTip("Remove asset from library (does not delete the file on your machine)")
+        self.btn_delete.setMaximumWidth(100)
+        self.btn_delete.clicked.connect(self._on_delete_clicked)
+
         self.btn_save = QPushButton("Save")
         self.btn_save.setToolTip("Save changes to asset metadata")
         self.btn_save.setMaximumWidth(100)
@@ -78,6 +84,7 @@ class Detail(QWidget):
         self.btn_cancel.setVisible(False)
 
         button_layout.addWidget(self.btn_edit)
+        button_layout.addWidget(self.btn_delete)
         button_layout.addWidget(self.btn_save)
         button_layout.addWidget(self.btn_cancel)
 
@@ -338,6 +345,9 @@ class Detail(QWidget):
     def _on_back_clicked(self) -> None:
         """Handle back button click."""
         self.back_clicked.emit()
+
+    def _on_delete_clicked(self) -> None:
+        self.delete_clicked.emit(self.current_asset['id'] if self.current_asset else -1)
 
     def _on_edit_clicked(self) -> None:
         """Handle edit button click."""

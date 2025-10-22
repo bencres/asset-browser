@@ -24,6 +24,7 @@ class Window(QMainWindow):
     importClicked = Signal(str)
     scanClicked = Signal()
     logViewerClicked = Signal()
+    deleteAssetClicked = Signal(int)
 
     def __init__(self) -> None:
         super().__init__()
@@ -85,6 +86,7 @@ class Window(QMainWindow):
         # Connect signals
         self.tree.treeItemClicked.connect(self._on_tree_item_clicked)
         self.detail.back_clicked.connect(self.show_browser)
+        self.detail.delete_clicked.connect(self._on_delete_asset_clicked)
         self.toolbar.importAssetSelected.connect(self._on_import_clicked)
         self.toolbar.scanClicked.connect(self._on_scan_clicked)
         self.toolbar.logViewerClicked.connect(self._on_log_clicked)
@@ -230,3 +232,6 @@ class Window(QMainWindow):
 
     def _on_log_clicked(self):
         self.logViewerClicked.emit()
+
+    def _on_delete_asset_clicked(self, asset_id: int):
+        self.deleteAssetClicked.emit(asset_id)

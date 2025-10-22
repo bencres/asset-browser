@@ -45,18 +45,15 @@ class Presenter(QWidget):
         self.win.importClicked.connect(self.on_import_asset)
         self.win.logViewerClicked.connect(self.on_log_viewer_clicked)
         self.win.rendererChanged.connect(self.on_renderer_changed)
+        self.win.deleteAssetClicked.connect(self.on_delete_asset)
 
     def on_scan_clicked(self):
         self.win.show_message("Starting sync operation...", "info")
         
         sync_result = self.asset_service.sync()
         
-        # Refresh GUI
-        self.assets = self._load_assets()
-        self.directory_tree = self._build_directory_tree(self.assets)
-        self.previews = self._create_previews_list(self.assets)
-        self.win.browser.draw_previews(self.previews)
-        self.win.tree.draw_tree(self.directory_tree)
+        self._refresh_gui()
+        self.win.show_browser()
         
         # Show completion message in status bar
         summary = sync_result.get_summary()
@@ -77,7 +74,14 @@ class Presenter(QWidget):
         print(f"Importing asset: {asset_path if asset_path else 'MISSING PATH'}")
         asset = self.asset_service.create_asset_req_body_from_path(asset_path)
         self.asset_service.add_asset_to_db(asset)
+        self._refresh_gui()
         self.win.show_message(f"Imported asset! {asset["name"]}", "info", 3000)
+
+    def on_delete_asset(self, asset_id):
+        self.asset_service.remove_asset_from_db(asset_id)
+        self._refresh_gui()
+        self.win.show_browser()
+        self.win.show_message(f"Deleted asset!", "info", 3000)
 
     def on_renderer_changed(self, renderer_text: str):
         self.win.show_message(f"Renderer changed to {renderer_text}", "info", 3000)
@@ -134,6 +138,13 @@ class Presenter(QWidget):
 
     def on_save_metadata_changes(self, asset: dict):
         pass
+
+    def _refresh_gui(self):
+        self.assets = self._load_assets()
+        self.directory_tree = self._build_directory_tree(self.assets)
+        self.previews = self._create_previews_list(self.assets)
+        self.win.browser.draw_previews(self.previews)
+        self.win.tree.draw_tree(self.directory_tree)
 
     def _set_adapter(self, app):
         pass

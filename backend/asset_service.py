@@ -35,6 +35,13 @@ class AssetService:
         except requests.exceptions.RequestException as e:
             print(f"Error posting asset {asset_name} at {asset_path}: {e}")
 
+    def remove_asset_from_db(self, asset_id: int):
+        try:
+            response = requests.delete(self.url + f"/assets/{asset_id}")
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"Error deleting asset with id {asset_id}: {e}")
+
     @staticmethod
     def create_asset_req_body_from_path(asset_path: str):
         return {
