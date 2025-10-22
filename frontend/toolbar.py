@@ -279,4 +279,4 @@ class Toolbar(QWidget):
             file = file_dialog.selectedFiles()
             if file:
                 # Emit the first selected path
-                self.importAssetSelected.emit(str(file))
+                self.importAssetSelected.emit(file[0])
