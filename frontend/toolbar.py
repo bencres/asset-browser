@@ -17,6 +17,7 @@ class Toolbar(QWidget):
     importClicked = Signal()
     scanClicked = Signal()
     logViewerClicked = Signal()
+    rendererChanged = Signal(str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -73,19 +74,28 @@ class Toolbar(QWidget):
         ])
         self.filter_combo.currentTextChanged.connect(self._on_filter_changed)
 
+        renderer_label = QLabel("Renderer:")
+        renderer_label.setStyleSheet("color: #e0e0e0; font-weight: 500;")
+        # Preferred renderer combo box
+        self.cb_renderer = QComboBox()
+        self.cb_renderer.setToolTip("Set your preferred renderer.")
+        self.cb_renderer.setMinimumWidth(150)
+        self.cb_renderer.currentTextChanged.connect(self._on_renderer_changed)
+
         # Import button
         self.btn_import = QPushButton("Import")
         self.btn_import.clicked.connect(self._on_import_clicked)
 
         # Add widgets to layout
-        layout.addWidget(self.btn_scan)
-        layout.addWidget(self.btn_log_viewer)
+        # layout.addWidget(self.btn_scan)
+        # layout.addWidget(self.btn_log_viewer)
         layout.addWidget(search_label)
         layout.addWidget(self.search_bar, 1)  # Stretch factor 1
         layout.addWidget(filter_label)
         layout.addWidget(self.filter_combo)
+        layout.addWidget(renderer_label)
+        layout.addWidget(self.cb_renderer)
         layout.addWidget(self.btn_import)
-        self.btn_import.setVisible(False)
         layout.addStretch()
 
     def _set_log_icon(self):
@@ -244,6 +254,13 @@ class Toolbar(QWidget):
         """
         if self.filter_combo.findText(option) == -1:
             self.filter_combo.addItem(option)
+
+    def set_allowed_renderers(self, renderers: list[str]):
+        for renderer in renderers:
+            self.cb_renderer.addItem(renderer)
+
+    def _on_renderer_changed(self, text: str):
+        self.rendererChanged.emit(text)
 
     def clear_search(self):
         """Clear the search bar."""

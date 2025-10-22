@@ -20,6 +20,7 @@ class Window(QMainWindow):
     treeItemSelected = Signal(str)
     searchTextChanged = Signal(str)
     filterChanged = Signal(str)
+    rendererChanged = Signal(str)
     importClicked = Signal()
     scanClicked = Signal()
     logViewerClicked = Signal()
@@ -87,6 +88,7 @@ class Window(QMainWindow):
         self.toolbar.importClicked.connect(self._on_import_clicked)
         self.toolbar.scanClicked.connect(self._on_scan_clicked)
         self.toolbar.logViewerClicked.connect(self._on_log_clicked)
+        self.toolbar.rendererChanged.connect(self._on_renderer_changed)
         self.mini_detail.closeClicked.connect(self.hide_mini_detail)
         self.log_viewer.closeRequested.connect(self.show_browser)
 
@@ -182,6 +184,9 @@ class Window(QMainWindow):
     def _on_filter_changed(self, filter_text: str) -> None:
         """Internal handler that forwards filter changes to presenter via signal."""
         self.filterChanged.emit(filter_text)
+
+    def _on_renderer_changed(self, renderer_text: str):
+        self.rendererChanged.emit(renderer_text)
 
     # UML: + showMessage(msg)
     def show_message(self, msg: str, message_type: str = "info", timeout: int = 5000) -> None:

@@ -17,6 +17,8 @@ class Presenter(QWidget):
         try:
             app = self._detect_application()
             self.adapter = self._set_adapter(app)
+            # TODO: detect application and renderers dynamically.
+            self.win.toolbar.set_allowed_renderers(["Karma", "Mantra", "Renderman", "Redshift", "Arnold", "V-Ray"])
         except Exception as e:
             win.show_message(f"Error setting adapter! {e}")
             print(f"Error setting adapter! {e}")
@@ -42,6 +44,7 @@ class Presenter(QWidget):
         self.win.scanClicked.connect(self.on_scan_clicked)
         self.win.importClicked.connect(self.on_import_clicked)
         self.win.logViewerClicked.connect(self.on_log_viewer_clicked)
+        self.win.rendererChanged.connect(self.on_renderer_changed)
 
     def on_scan_clicked(self):
         self.win.show_message("Starting sync operation...", "info")
@@ -72,6 +75,9 @@ class Presenter(QWidget):
     
     def on_import_clicked(self):
         self.win.show_message("Import functionality coming soon!", "info", 3000)
+
+    def on_renderer_changed(self, renderer_text: str):
+        self.win.show_message(f"Renderer changed to {renderer_text}", "info", 3000)
     
     def on_log_viewer_clicked(self):
         """Show log viewer with most recent sync results."""

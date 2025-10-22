@@ -200,6 +200,7 @@ class LogViewer(QWidget):
             self.posted_label.setText(f"Posted: None")
             self.missing_label.setText(f"Missing Locally: None")
             self.error_label.setText(f"Errors: None")
+            return
 
         summary = self.sync_result.get_summary()
 
