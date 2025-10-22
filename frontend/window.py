@@ -131,6 +131,12 @@ class Window(QMainWindow):
         self.log_viewer.set_sync_result(sync_result)
         self.stacked.setCurrentWidget(self.log_viewer)
 
+    def toggle_mini_detail(self, asset) -> None:
+        if self.is_showing_mini_detail:
+            self.hide_mini_detail()
+        else:
+            self.show_mini_detail(asset)
+        self.is_showing_mini_detail = not self.is_showing_mini_detail
 
     def show_mini_detail(self, asset: dict) -> None:
         """

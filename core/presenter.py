@@ -99,19 +99,13 @@ class Presenter(QWidget):
         # TODO: this is a quick fix. Should actually query the database.
         return next((a for a in self.assets if a.get('id') == asset_id), None)
 
-    def on_asset_preview_clicked(self, asset_id: int) -> dict:
+    def on_asset_preview_clicked(self, asset_id: int) -> None:
         asset = self._get_asset_by_id(asset_id)
-        # TODO: import button and splitter are not hidden when clicking elsewhere.
         if not asset:
             self.win.show_message("Asset not found!", "warning", 3000)
             return
-        if not self.win.is_showing_mini_detail:
-            # Show mini detail view
-            self.win.show_mini_detail(asset)
-            self.win.is_showing_mini_detail = True
-            return
-        self.win.hide_mini_detail()
-        self.win.is_showing_mini_detail = False
+
+        self.win.toggle_mini_detail(asset)
 
     def on_asset_preview_double_clicked(self, asset_id: int):
         asset = self._get_asset_by_id(asset_id)
