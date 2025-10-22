@@ -263,8 +263,10 @@ class Presenter(QWidget):
         From a flat list of asset dicts, create a list of Preview widgets.
 
         Assumptions:
-        - Each asset has a 'directory_path' that points to a directory containing a
-          preview file named 'preview' with one of the extensions: .png, .webp, .jpg
+        - Each asset has a 'directory_path' that either:
+          1. Points to a directory containing a preview file named 'preview' with 
+             one of the extensions: .png, .webp, .jpg, OR
+          2. Points directly to a .hdr file that will be tone-mapped to create a preview
         - The asset's display name comes from asset['name']
         - The asset id comes from asset['id'] (optional)
         """
@@ -282,26 +284,40 @@ class Presenter(QWidget):
             # Normalize the directory path
             norm = os.path.normpath(str(dir_path)) if dir_path else ''
 
-            # Determine preview file path
-            preview_path = None
-            if norm:
-                # Try both the normalized path and a version with a leading slash if missing
-                candidate_bases = [norm]
-                if not norm.startswith(os.sep):
-                    candidate_bases.append(os.sep + norm)
+            pixmap = QPixmap()
+            
+            # Check if directory_path is a .hdr file
+            if norm and norm.lower().endswith('.hdr') and os.path.isfile(norm):
+                try:
+                    # Use hdr_to_preview to generate a tone-mapped preview
+                    byte_image = utils.hdr_to_preview(norm, as_bytes=True)
+                    # Convert PIL Image to QPixmap
+                    # First convert to bytes, then load into QPixmap
+                    pixmap.loadFromData(byte_image)
+                except Exception as e:
+                    print(f"Error loading HDR preview for {norm}: {e}")
+                    pixmap = QPixmap()
+            else:
+                # Original behavior: look for preview file in directory
+                preview_path = None
+                if norm:
+                    # Try both the normalized path and a version with a leading slash if missing
+                    candidate_bases = [norm]
+                    if not norm.startswith(os.sep):
+                        candidate_bases.append(os.sep + norm)
 
-                exts = ['.png', '.webp', '.jpg']
-                for base in candidate_bases:
-                    for ext in exts:
-                        cand = os.path.join(base, 'preview' + ext)
-                        if os.path.isfile(cand):
-                            preview_path = cand
+                    exts = ['.png', '.webp', '.jpg']
+                    for base in candidate_bases:
+                        for ext in exts:
+                            cand = os.path.join(base, 'preview' + ext)
+                            if os.path.isfile(cand):
+                                preview_path = cand
+                                break
+                        if preview_path:
                             break
-                    if preview_path:
-                        break
 
-            # Load pixmap (empty if not found)
-            pixmap = QPixmap(preview_path) if preview_path else QPixmap()
+                # Load pixmap (empty if not found)
+                pixmap = QPixmap(preview_path) if preview_path else QPixmap()
 
             asset_preview = Preview(
                 thumbnail=pixmap,

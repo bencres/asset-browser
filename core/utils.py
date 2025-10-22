@@ -7,9 +7,9 @@ from PIL import Image
 
 def hdr_to_preview(
     input_path: str | Path,
-    gamma: float = 2.2,
-    intensity: float = 0.0,
-    light_adapt: float = 1.0,
+    gamma: float = 2.4,
+    intensity: float = 0.5,
+    light_adapt: float = 0.0,
     color_adapt: float = 0.0,
     as_image: bool = True,
     as_bytes: bool = False,
@@ -30,19 +30,30 @@ def hdr_to_preview(
 
     Returns:
         Union[Image.Image, np.ndarray, bytes]:
-            - Pillow `Image` if `as_image` is True.
+            - Pillow Image if `as_image` is True.
             - NumPy array (H×W×3, uint8) if both flags are False.
             - JPEG byte stream if `as_bytes` is True.
 
     Raises:
-        FileNotFoundError: If the HDR file cannot be loaded.
+        FileNotFoundError: If the HDR file cannot be loaded or is invalid.
     """
     input_path = Path(input_path)
 
-    hdr = cv2.imread(str(input_path), cv2.IMREAD_ANYDEPTH)
+    hdr = cv2.imread(str(input_path), cv2.IMREAD_UNCHANGED)
     if hdr is None:
         raise FileNotFoundError(f"Cannot read HDR image: {input_path}")
 
+    # Ensure it’s float32
+    hdr = hdr.astype(np.float32)
+
+    # Some .hdr files load as single-channel; convert to 3-channel if needed
+    if hdr.ndim == 2:
+        hdr = cv2.merge([hdr, hdr, hdr])
+    elif hdr.shape[2] == 4:
+        # Drop alpha if present
+        hdr = hdr[:, :, :3]
+
+    # Create tone mapping operator
     tonemap = cv2.createTonemapReinhard(
         gamma=gamma,
         intensity=intensity,
@@ -50,12 +61,14 @@ def hdr_to_preview(
         color_adapt=color_adapt,
     )
 
+    # Apply tone mapping safely
     ldr = tonemap.process(hdr)
+
+    # Convert to 8-bit RGB
     ldr_8bit = np.clip(ldr * 255, 0, 255).astype(np.uint8)
     ldr_rgb = cv2.cvtColor(ldr_8bit, cv2.COLOR_BGR2RGB)
 
     if as_bytes:
-        # Encode to in-memory JPEG
         img = Image.fromarray(ldr_rgb)
         buffer = BytesIO()
         img.save(buffer, format="JPEG", quality=85)
@@ -63,5 +76,5 @@ def hdr_to_preview(
 
     if as_image:
         return Image.fromarray(ldr_rgb)
-    else:
-        return ldr_rgb
+
+    return ldr_rgb
