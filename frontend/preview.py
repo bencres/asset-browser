@@ -101,16 +101,16 @@ class Preview(QWidget):
         """)
 
         # Info button
-        self.info_button = QPushButton("ℹ")
+        self.info_button = QPushButton("≡")
         self.info_button.setFixedSize(20, 20)
         self.info_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.info_button.setToolTip("Show asset details")
         self.info_button.setStyleSheet("""
             QPushButton {
                 background-color: #3d3d3d;
-                color: #4a9eff;
-                border: 1px solid #4a9eff;
-                border-radius: 10px;
+                color: #e8e8e8;
+                border: 1px solid #595959;
+                border-radius: 4px;
                 font-size: 12pt;
                 font-weight: bold;
                 padding: 0px;
@@ -143,7 +143,7 @@ class Preview(QWidget):
         self.shadow.setColor(QColor(0, 150, 255, 180))
         self.shadow.setOffset(0, 0)
         self.shadow.setEnabled(False)
-        self.setGraphicsEffect(self.shadow)
+        self.image_container.setGraphicsEffect(self.shadow)
 
     def eventFilter(self, obj, event):
         """Filter events for the image container to detect hover."""
