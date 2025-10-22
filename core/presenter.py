@@ -310,7 +310,7 @@ class Presenter(QWidget):
                 asset_id=asset_id,
                 parent=None,
             )
-            asset_preview.asset_clicked.connect(self.on_asset_preview_clicked)
+            asset_preview.show_mini_details.connect(self.on_asset_preview_clicked)
             asset_preview.asset_double_clicked.connect(self.on_asset_preview_double_clicked)
             previews.append(asset_preview)
 

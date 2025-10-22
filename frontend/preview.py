@@ -2,21 +2,15 @@ from typing import Any, Optional
 
 from PySide6.QtCore import Signal, Qt, QSize
 from PySide6.QtGui import QPixmap, QPalette, QColor
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsDropShadowEffect
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsDropShadowEffect, QHBoxLayout, QPushButton
 
 
 class Preview(QWidget):
     """
     Styled Preview widget representing a single asset preview.
-
-    Features:
-    - Hover effects
-    - Shadow on hover
-    - Rounded corners
-    - Professional styling
     """
 
-    asset_clicked = Signal(int)
+    show_mini_details = Signal(int)
     asset_double_clicked = Signal(int)
 
     def __init__(
@@ -76,6 +70,13 @@ class Preview(QWidget):
         self.label_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         image_layout.addWidget(self.label_icon)
 
+        # Text label container with info button
+        text_container = QWidget()
+        text_container.setStyleSheet("background: transparent;")
+        text_layout = QHBoxLayout(text_container)
+        text_layout.setContentsMargins(0, 0, 0, 0)
+        text_layout.setSpacing(4)
+
         # Text label
         self.label_text = QLabel(self.asset_name)
         self.label_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -91,9 +92,41 @@ class Preview(QWidget):
             }
         """)
 
-        # Add widgets to layout
+        # Info button
+        self.info_button = QPushButton("ℹ")
+        self.info_button.setFixedSize(20, 20)
+        self.info_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.info_button.setToolTip("Show asset details")
+        self.info_button.setStyleSheet("""
+            QPushButton {
+                background-color: #3d3d3d;
+                color: #4a9eff;
+                border: 1px solid #4a9eff;
+                border-radius: 10px;
+                font-size: 12pt;
+                font-weight: bold;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #4a9eff;
+                color: #ffffff;
+                border: 1px solid #5aa9ff;
+            }
+            QPushButton:pressed {
+                background-color: #3a8eef;
+            }
+        """)
+        self.info_button.clicked.connect(self._on_info_clicked)
+
+        # Add widgets to text layout
+        text_layout.addStretch()
+        text_layout.addWidget(self.label_text)
+        text_layout.addWidget(self.info_button)
+        text_layout.addStretch()
+
+        # Add widgets to main layout
         layout.addWidget(self.image_container)
-        layout.addWidget(self.label_text)
+        layout.addWidget(text_container)
         layout.addStretch()
 
         # Add shadow effect (will be shown on hover)
@@ -158,8 +191,12 @@ class Preview(QWidget):
     def mousePressEvent(self, event):
         """Handle mouse press event."""
         if event.button() == Qt.MouseButton.LeftButton:
-            self.asset_clicked.emit(self.asset_id)
+            print(f"Preview clicked: {self.asset_name}")
         super().mousePressEvent(event)
+
+    def _on_info_clicked(self):
+        """Handle info button click."""
+        self.show_mini_details.emit(self.asset_id)
 
     def mouseDoubleClickEvent(self, event):
         """Handle double-click event."""
