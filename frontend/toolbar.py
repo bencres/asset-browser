@@ -14,7 +14,7 @@ class Toolbar(QWidget):
 
     searchTextChanged = Signal(str)  # Emits search text when it changes
     filterChanged = Signal(str)  # Emits selected filter when it changes
-    importClicked = Signal(str)
+    importAssetSelected = Signal(str)
     scanClicked = Signal()
     logViewerClicked = Signal()
     rendererChanged = Signal(str)
@@ -279,4 +279,4 @@ class Toolbar(QWidget):
             file = file_dialog.selectedFiles()
             if file:
                 # Emit the first selected path
-                self.importClicked.emit(file)
+                self.importAssetSelected.emit(str(file))

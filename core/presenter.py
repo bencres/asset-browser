@@ -74,6 +74,7 @@ class Presenter(QWidget):
             )
     
     def on_import_asset(self, asset_path):
+        print(f"Importing asset: {asset_path if asset_path else 'MISSING PATH'}")
         asset = self.asset_service.create_asset_req_body_from_path(asset_path)
         self.asset_service.add_asset_to_db(asset)
         self.win.show_message(f"Imported asset! {asset["name"]}", "info", 3000)

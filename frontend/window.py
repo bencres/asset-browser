@@ -85,7 +85,7 @@ class Window(QMainWindow):
         # Connect signals
         self.tree.treeItemClicked.connect(self._on_tree_item_clicked)
         self.detail.back_clicked.connect(self.show_browser)
-        self.toolbar.importClicked.connect(self._on_import_clicked)
+        self.toolbar.importAssetSelected.connect(self._on_import_clicked)
         self.toolbar.scanClicked.connect(self._on_scan_clicked)
         self.toolbar.logViewerClicked.connect(self._on_log_clicked)
         self.toolbar.rendererChanged.connect(self._on_renderer_changed)
@@ -222,6 +222,7 @@ class Window(QMainWindow):
         pass
 
     def _on_import_clicked(self, asset_path: str):
+        print(f"Import clicked: {asset_path}")
         self.importClicked.emit(asset_path)
 
     def _on_scan_clicked(self):
