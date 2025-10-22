@@ -94,6 +94,9 @@ class Window(QMainWindow):
         self.mini_detail.closeClicked.connect(self.hide_mini_detail)
         self.log_viewer.closeRequested.connect(self.show_browser)
 
+        # Other
+        self.is_showing_mini_detail = False
+
     def show_browser(self) -> None:
         """Show the browser view and restore mini detail if it was visible."""
         self.stacked.setCurrentWidget(self.browser)
@@ -127,6 +130,7 @@ class Window(QMainWindow):
         # Set the sync result and switch to log viewer
         self.log_viewer.set_sync_result(sync_result)
         self.stacked.setCurrentWidget(self.log_viewer)
+
 
     def show_mini_detail(self, asset: dict) -> None:
         """

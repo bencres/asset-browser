@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from PySide6.QtCore import Signal, Qt, QSize
+from PySide6.QtCore import Signal, Qt, QSize, QEvent
 from PySide6.QtGui import QPixmap, QPalette, QColor
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsDropShadowEffect, QHBoxLayout, QPushButton
 
@@ -24,14 +24,19 @@ class Preview(QWidget):
         self.thumbnail: QPixmap = thumbnail or QPixmap()
         self.asset_name: str = asset_name
         self.asset_id: Optional[int] = asset_id
-        self._is_hovered = False
+        self._is_image_hovered = False
 
         # Set fixed size for the preview widget
         self.setFixedSize(QSize(180, 220))
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        # Apply initial styling
-        self._apply_style(hovered=False)
+        # Apply initial styling (no border initially)
+        self.setStyleSheet("""
+            Preview {
+                background-color: #242424;
+                border: 2px solid #333333;
+                border-radius: 12px;
+            }
+        """)
 
         # Create layout
         layout = QVBoxLayout(self)
@@ -41,6 +46,7 @@ class Preview(QWidget):
         # Image container with background
         self.image_container = QWidget()
         self.image_container.setFixedSize(160, 160)
+        self.image_container.setCursor(Qt.CursorShape.PointingHandCursor)
         self.image_container.setStyleSheet("""
             QWidget {
                 background-color: #1a1a1a;
@@ -48,6 +54,8 @@ class Preview(QWidget):
                 border: 2px solid #333333;
             }
         """)
+        # Install event filter to track mouse hover on image container
+        self.image_container.installEventFilter(self)
 
         image_layout = QVBoxLayout(self.image_container)
         image_layout.setContentsMargins(0, 0, 0, 0)
@@ -137,9 +145,31 @@ class Preview(QWidget):
         self.shadow.setEnabled(False)
         self.setGraphicsEffect(self.shadow)
 
-    def _apply_style(self, hovered: bool = False, clicked: bool = False):
-        """Apply styling based on hover state."""
-        if hovered or clicked:
+    def eventFilter(self, obj, event):
+        """Filter events for the image container to detect hover."""
+        if obj == self.image_container:
+            if event.type() == QEvent.Type.Enter:
+                self._on_image_enter()
+                return False
+            elif event.type() == QEvent.Type.Leave:
+                self._on_image_leave()
+                return False
+        return super().eventFilter(obj, event)
+
+    def _on_image_enter(self):
+        """Handle mouse entering the image container."""
+        self._is_image_hovered = True
+        self._apply_image_hover_style(True)
+
+    def _on_image_leave(self):
+        """Handle mouse leaving the image container."""
+        self._is_image_hovered = False
+        self._apply_image_hover_style(False)
+
+    def _apply_image_hover_style(self, hovered: bool):
+        """Apply styling based on image hover state."""
+        if hovered:
+            # Highlight the entire widget
             self.setStyleSheet("""
                 Preview {
                     background-color: #2d2d2d;
@@ -147,7 +177,18 @@ class Preview(QWidget):
                     border-radius: 12px;
                 }
             """)
+            # Highlight the image container border
+            self.image_container.setStyleSheet("""
+                QWidget {
+                    background-color: #1a1a1a;
+                    border-radius: 8px;
+                    border: 2px solid #4a9eff;
+                }
+            """)
+            # Enable shadow effect
+            self.shadow.setEnabled(True)
         else:
+            # Reset to normal style
             self.setStyleSheet("""
                 Preview {
                     background-color: #242424;
@@ -155,51 +196,25 @@ class Preview(QWidget):
                     border-radius: 12px;
                 }
             """)
-
-    def enterEvent(self, event):
-        """Handle mouse enter event."""
-        self._is_hovered = True
-        self._apply_style(hovered=True)
-        self.shadow.setEnabled(True)
-
-        # Update image container border on hover
-        self.image_container.setStyleSheet("""
-            QWidget {
-                background-color: #1a1a1a;
-                border-radius: 8px;
-                border: 2px solid #4a9eff;
-            }
-        """)
-        super().enterEvent(event)
-
-    def leaveEvent(self, event):
-        """Handle mouse leave event."""
-        self._is_hovered = False
-        self._apply_style(hovered=False)
-        self.shadow.setEnabled(False)
-
-        # Reset image container border
-        self.image_container.setStyleSheet("""
-            QWidget {
-                background-color: #1a1a1a;
-                border-radius: 8px;
-                border: 2px solid #333333;
-            }
-        """)
-        super().leaveEvent(event)
-
-    def mousePressEvent(self, event):
-        """Handle mouse press event."""
-        if event.button() == Qt.MouseButton.LeftButton:
-            print(f"Preview clicked: {self.asset_name}")
-        super().mousePressEvent(event)
+            # Reset image container border
+            self.image_container.setStyleSheet("""
+                QWidget {
+                    background-color: #1a1a1a;
+                    border-radius: 8px;
+                    border: 2px solid #333333;
+                }
+            """)
+            # Disable shadow effect
+            self.shadow.setEnabled(False)
 
     def _on_info_clicked(self):
         """Handle info button click."""
         self.show_mini_details.emit(self.asset_id)
 
     def mouseDoubleClickEvent(self, event):
-        """Handle double-click event."""
+        """Handle double-click event on the image container."""
         if event.button() == Qt.MouseButton.LeftButton:
-            self.asset_double_clicked.emit(self.asset_id)
+            # Check if the click is within the image container bounds
+            if self.image_container.geometry().contains(event.pos()):
+                self.asset_double_clicked.emit(self.asset_id)
         super().mouseDoubleClickEvent(event)

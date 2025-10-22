@@ -102,12 +102,16 @@ class Presenter(QWidget):
     def on_asset_preview_clicked(self, asset_id: int) -> dict:
         asset = self._get_asset_by_id(asset_id)
         # TODO: import button and splitter are not hidden when clicking elsewhere.
-        if asset:
+        if not asset:
+            self.win.show_message("Asset not found!", "warning", 3000)
+            return
+        if not self.win.is_showing_mini_detail:
             # Show mini detail view
             self.win.show_mini_detail(asset)
-
-            # Show import button in toolbar
-            self.win.toolbar.show_import_button()
+            self.win.is_showing_mini_detail = True
+            return
+        self.win.hide_mini_detail()
+        self.win.is_showing_mini_detail = False
 
     def on_asset_preview_double_clicked(self, asset_id: int):
         asset = self._get_asset_by_id(asset_id)
