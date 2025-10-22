@@ -42,7 +42,7 @@ class Presenter(QWidget):
         self.win.searchTextChanged.connect(self.on_search_changed)
         self.win.filterChanged.connect(self.on_filter_changed)
         self.win.scanClicked.connect(self.on_scan_clicked)
-        self.win.importClicked.connect(self.on_import_clicked)
+        self.win.importClicked.connect(self.on_import_asset)
         self.win.logViewerClicked.connect(self.on_log_viewer_clicked)
         self.win.rendererChanged.connect(self.on_renderer_changed)
 
@@ -73,8 +73,10 @@ class Presenter(QWidget):
                 5000
             )
     
-    def on_import_clicked(self):
-        self.win.show_message("Import functionality coming soon!", "info", 3000)
+    def on_import_asset(self, asset_path):
+        asset = self.asset_service.create_asset_req_body_from_path(asset_path)
+        self.asset_service.add_asset_to_db(asset)
+        self.win.show_message(f"Imported asset! {asset["name"]}", "info", 3000)
 
     def on_renderer_changed(self, renderer_text: str):
         self.win.show_message(f"Renderer changed to {renderer_text}", "info", 3000)

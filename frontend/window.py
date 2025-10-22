@@ -21,7 +21,7 @@ class Window(QMainWindow):
     searchTextChanged = Signal(str)
     filterChanged = Signal(str)
     rendererChanged = Signal(str)
-    importClicked = Signal()
+    importClicked = Signal(str)
     scanClicked = Signal()
     logViewerClicked = Signal()
 
@@ -205,10 +205,6 @@ class Window(QMainWindow):
         """Handle back navigation from a given widget."""
         pass
 
-    def onImportClicked(self, a: Any) -> None:
-        """Handle importing the given asset."""
-        pass
-
     def onTreeItemClicked(self, i: Any) -> None:
         """Handle clicks on a tree item representing a directory or asset."""
         pass
@@ -225,8 +221,8 @@ class Window(QMainWindow):
         """Persist metadata changes for the given asset."""
         pass
 
-    def _on_import_clicked(self):
-        self.importClicked.emit()
+    def _on_import_clicked(self, asset_path: str):
+        self.importClicked.emit(asset_path)
 
     def _on_scan_clicked(self):
         self.scanClicked.emit()

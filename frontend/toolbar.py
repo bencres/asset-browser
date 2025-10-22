@@ -2,7 +2,7 @@ from typing import Optional
 
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QLineEdit, QComboBox, QLabel, QSizePolicy, QPushButton
+    QWidget, QHBoxLayout, QLineEdit, QComboBox, QLabel, QSizePolicy, QPushButton, QFileDialog
 )
 from PySide6.QtGui import QIcon
 
@@ -14,7 +14,7 @@ class Toolbar(QWidget):
 
     searchTextChanged = Signal(str)  # Emits search text when it changes
     filterChanged = Signal(str)  # Emits selected filter when it changes
-    importClicked = Signal()
+    importClicked = Signal(str)
     scanClicked = Signal()
     logViewerClicked = Signal()
     rendererChanged = Signal(str)
@@ -268,4 +268,15 @@ class Toolbar(QWidget):
 
     def _on_import_clicked(self):
         """Handle import button click."""
-        self.importClicked.emit()
+        # Open file dialog to select file or directory
+        file_dialog = QFileDialog(self)
+        file_dialog.setWindowTitle("Select File or Directory to Import")
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+        file_dialog.setOption(QFileDialog.Option.DontUseNativeDialog, False)
+        
+        # Execute dialog and get result
+        if file_dialog.exec():
+            file = file_dialog.selectedFiles()
+            if file:
+                # Emit the first selected path
+                self.importClicked.emit(file)
