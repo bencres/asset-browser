@@ -11,7 +11,6 @@ from PySide6.QtWidgets import (
 
 from core.presenter import Presenter
 from backend.asset_service import AssetService
-from frontend.window import Window
 
 SERVER_URL = "http://127.0.0.1:8000"
 
@@ -42,9 +41,7 @@ try:
 
     app = QApplication(sys.argv)
     model = AssetService(SERVER_URL, LOCAL_ASSETS_DIR)
-    view = Window()
-    presenter = Presenter(view, model)
-    presenter.run()
+    presenter = Presenter(model)
     print("GUI launched.")
     exit_code = app.exec()
 
