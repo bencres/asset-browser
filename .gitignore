@@ -302,3 +302,4 @@ __marimo__/
 # Asset Browser
 # Database files
 *.db
+uv.lock

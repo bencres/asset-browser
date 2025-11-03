@@ -14,7 +14,7 @@ class Presenter(QWidget):
         super().__init__()
         self.asset_service = asset_service
         self.ROOT_ASSET_DIRECTORY = "Assets"
-        self.widget = None
+        self.widget = MainWidget()
         self.win = None
         self._init_gui()
 
@@ -30,8 +30,12 @@ class Presenter(QWidget):
         self.widget.tree.draw_tree(self.directory_tree)
 
     def _init_gui(self):
-        self.win = Window()
-        self.widget = self.win.main_widget
+        try:
+            import hou
+            return self.widget
+        except ImportError as e:
+            print(f"Looks like UAB is not in Houdini: {e}")
+        self.win = Window(self.widget)
         self.win.show()
 
     def reload_assets(self):
