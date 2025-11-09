@@ -41,4 +41,4 @@ A tool for digital creators to unify asset access and management across content 
         </pythonPanelDocument>
         ```
     7. Create a directory named `python3.11libs` and copy the contents of the interpreter's `site_packages` to it.
-    8. Create a new pane in Houdini and select the "Universal Asset Browser".
+    8. Create a new pane in Houdini and select "Universal Asset Browser".
