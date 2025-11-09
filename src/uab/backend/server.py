@@ -9,9 +9,11 @@ from uab.backend.app.api.routes import router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Asset Browser",
+    title="Universal Asset Browser",
     description="A cross-application asset browser for digital artists.",
     version="0.0.1",
 )
+
+print(f"Connecting to DB at {engine.url}")
 
 app.include_router(router)

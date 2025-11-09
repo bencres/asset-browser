@@ -3,10 +3,13 @@ import os
 import sys
 import requests
 import time
+import threading
+import uvicorn
 from PySide6.QtWidgets import QApplication
 
 from uab.frontend.main_widget import MainWidget
 from uab.frontend.main_window import MainWindow
+from uab.backend.server import app
 
 
 def run():
@@ -16,40 +19,39 @@ def run():
         return result
     finally:
         print("Shutting down server...")
-        process.terminate()
-        try:
-            process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            process.kill()
+        _stop_server(process)
         print("Server shut down.")
 
 
 def _start_server():
-    """Start the uvicorn FastAPI server and return the process handle."""
-    SERVER_URL = "http://127.0.0.1:8000"
-    PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-    BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
+    """Start the uvicorn FastAPI server in a background thread."""
+    print(app.title)
+    config = uvicorn.Config(app, host="127.0.0.1", port=8000, reload=False)
+    server = uvicorn.Server(config)
 
-    if not os.path.exists(BACKEND_DIR):
-        raise RuntimeError(f"Backend directory missing: {BACKEND_DIR}")
+    def _run_server():
+        print("Starting server thread...")
+        server.run()
+        print("Server stopped.")
 
-    uvicorn_cmd = [sys.executable, "-m", "uvicorn", "server:app", "--reload"]
+    thread = threading.Thread(target=_run_server, daemon=True)
+    thread.start()
 
-    print("Starting server...")
-    process = subprocess.Popen(
-        uvicorn_cmd,
-        cwd=BACKEND_DIR,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-
-    if not _wait_for_server(SERVER_URL + "/assets", timeout=10):
-        process.terminate()
+    # Wait until server is reachable before continuing
+    server_url = "http://127.0.0.1:8000"
+    if not _wait_for_server(server_url, timeout=10):
         raise RuntimeError("Server failed to start in time.")
 
     print("Server started and reachable.")
-    return process
+    return server
+
+
+def _stop_server(server):
+    """Gracefully stop the server."""
+    try:
+        server.should_exit = True
+    except Exception:
+        pass  # Uvicorn server may already be down
 
 
 def _start_gui():
