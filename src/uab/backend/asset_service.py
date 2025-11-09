@@ -1,7 +1,7 @@
 import pathlib as pl
 import requests
 
-from backend.sync_service import SyncService, SyncResult
+from uab.backend.sync_service import SyncService, SyncResult
 
 
 class AssetService:

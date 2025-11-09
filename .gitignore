@@ -303,3 +303,4 @@ __marimo__/
 # Database files
 *.db
 uv.lock
+.DS_Store

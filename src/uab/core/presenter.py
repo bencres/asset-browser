@@ -3,11 +3,11 @@ from PySide6.QtGui import QPixmap
 import os
 from typing import Any, Dict, List
 
-from frontend.main_widget import MainWidget
-from frontend.main_window import Window
-from frontend.preview import Preview
-from backend.asset_service import AssetService
-from core import utils
+from uab.frontend.main_widget import MainWidget
+from uab.frontend.main_window import Window
+from uab.frontend.preview import Preview
+from uab.backend.asset_service import AssetService
+from uab.core import utils
 
 class Presenter(QWidget):
     def __init__(self, asset_service: AssetService):

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QMainWindow
 
-from frontend.main_widget import MainWidget
+from uab.frontend.main_widget import MainWidget
 
 class Window(QMainWindow):
     """

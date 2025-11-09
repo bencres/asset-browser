@@ -8,13 +8,13 @@ from PySide6.QtWidgets import (
     QSplitter,
     QStackedWidget,
 )
-from frontend.browser import Browser
-from frontend.detail import Detail
-from frontend.tree import Tree
-from frontend.toolbar import Toolbar
-from frontend.mini_detail import MiniDetail
-from frontend.log_viewer import LogViewer
-from frontend.status_bar import StatusBar
+from uab.frontend.browser import Browser
+from uab.frontend.detail import Detail
+from uab.frontend.tree import Tree
+from uab.frontend.toolbar import Toolbar
+from uab.frontend.mini_detail import MiniDetail
+from uab.frontend.log_viewer import LogViewer
+from uab.frontend.status_bar import StatusBar
 
 
 class MainWidget(QWidget):

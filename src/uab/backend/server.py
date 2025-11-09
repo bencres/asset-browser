@@ -2,8 +2,8 @@
 
 
 from fastapi import FastAPI
-from app.data_access.database import engine, Base
-from app.api.routes import router
+from uab.backend.app.data_access.database import engine, Base
+from uab.backend.app.api.routes import router
 
 
 Base.metadata.create_all(bind=engine)

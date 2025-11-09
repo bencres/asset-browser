@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QScrollArea, QVBoxLayout
 )
 
-from frontend.preview import Preview
+from uab.frontend.preview import Preview
 
 
 class Browser(QWidget):
