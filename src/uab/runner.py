@@ -10,9 +10,9 @@ from uab.frontend.main_window import MainWindow
 
 
 def run():
-    process = start_server()
+    process = _start_server()
     try:
-        result = start_gui()
+        result = _start_gui()
         return result
     finally:
         print("Shutting down server...")
@@ -24,7 +24,7 @@ def run():
         print("Server shut down.")
 
 
-def start_server():
+def _start_server():
     """Start the uvicorn FastAPI server and return the process handle."""
     SERVER_URL = "http://127.0.0.1:8000"
     PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -52,7 +52,7 @@ def start_server():
     return process
 
 
-def start_gui():
+def _start_gui():
     """Launch the GUI appropriately depending on environment."""
     print("Starting GUI...")
     match _get_current_dcc():
