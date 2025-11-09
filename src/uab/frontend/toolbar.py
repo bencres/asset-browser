@@ -1,10 +1,9 @@
 from typing import Optional
 
-from PySide6.QtCore import Signal, Qt
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QLineEdit, QComboBox, QLabel, QSizePolicy, QPushButton, QFileDialog
 )
-from PySide6.QtGui import QIcon
 
 
 class Toolbar(QWidget):
@@ -12,31 +11,27 @@ class Toolbar(QWidget):
     Toolbar widget containing main user controls.
     """
 
-    search_text_changed = Signal(str)  # Emits search text when it changes
-    filter_changed = Signal(str)  # Emits selected filter when it changes
+    search_text_changed = Signal(str)
+    filter_changed = Signal(str)
     import_asset_selected = Signal(str)
     scan_clicked = Signal()
     log_viewer_clicked = Signal()
     renderer_changed = Signal(str)
+    spawn_clicked = Signal()
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-
         self._init_ui()
         self._apply_style()
 
     def _init_ui(self):
         """Initialize the UI components."""
         layout = QHBoxLayout(self)
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,
+                           QSizePolicy.Policy.Fixed)
         self.setMaximumHeight(50)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(15)
-
-        # Scan Asset Directory button
-        self.btn_scan = QPushButton("Scan Asset Directory")
-        self.btn_scan.setToolTip("Scan asset directory for new assets")
-        self.btn_scan.clicked.connect(self._scan_clicked)
 
         # Search bar
         search_label = QLabel("Search:")
@@ -44,7 +39,8 @@ class Toolbar(QWidget):
 
         self.search_bar = QLineEdit()
         self.search_bar.setToolTip("Search assets by name, tag, or type...")
-        self.search_bar.setPlaceholderText("Search assets by name, tag, or type...")
+        self.search_bar.setPlaceholderText(
+            "Search assets by name, tag, or type...")
         self.search_bar.setMinimumWidth(250)
         self.search_bar.setClearButtonEnabled(True)
         self.search_bar.textChanged.connect(self._on_search_changed)
@@ -79,6 +75,10 @@ class Toolbar(QWidget):
         self.btn_import = QPushButton("Import")
         self.btn_import.clicked.connect(self._on_import_clicked)
 
+        # Spawn button
+        self.btn_spawn = QPushButton("Spawn")
+        self.btn_spawn.clicked.connect(self._on_spawn_clicked)
+
         # Add widgets to layout
         layout.addWidget(self.search_bar, 1)  # Stretch factor 1
         layout.addWidget(filter_label)
@@ -87,6 +87,7 @@ class Toolbar(QWidget):
         layout.addWidget(self.cb_renderer)
         layout.addWidget(self.btn_import)
         layout.addStretch()
+        layout.addWidget(self.btn_spawn)
 
     def show_import_button(self):
         """Show the import button."""
@@ -98,6 +99,10 @@ class Toolbar(QWidget):
 
     def _scan_clicked(self):
         self.scan_clicked.emit()
+
+    def _on_spawn_clicked(self):
+        """Handle spawn button click."""
+        self.spawn_clicked.emit()
 
     def _apply_style(self):
         """Apply styling to the toolbar and its components."""
@@ -237,7 +242,7 @@ class Toolbar(QWidget):
         file_dialog.setWindowTitle("Select File or Directory to Import")
         file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
         file_dialog.setOption(QFileDialog.Option.DontUseNativeDialog, False)
-        
+
         # Execute dialog and get result
         if file_dialog.exec():
             file = file_dialog.selectedFiles()

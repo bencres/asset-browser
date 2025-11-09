@@ -11,6 +11,7 @@ class Preview(QWidget):
     """
 
     show_mini_details = Signal(int)
+    asset_clicked = Signal(int)
     asset_double_clicked = Signal(int)
 
     def __init__(
@@ -210,6 +211,12 @@ class Preview(QWidget):
     def _on_info_clicked(self):
         """Handle info button click."""
         self.show_mini_details.emit(self.asset_id)
+
+    def mousePressEvent(self, event):
+        """Handle mouse press event on the image container."""
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.asset_clicked.emit(self.asset_id)
+        super().mousePressEvent(event)
 
     def mouseDoubleClickEvent(self, event):
         """Handle double-click event on the image container."""

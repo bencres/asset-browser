@@ -27,6 +27,7 @@ class MainWidget(QWidget):
     import_clicked = Signal(str)
     scan_clicked = Signal()
     delete_asset_clicked = Signal(int)
+    spawn_clicked = Signal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -84,8 +85,6 @@ class MainWidget(QWidget):
         # This GUI's Presenter
         self.presenter = Presenter(self)
 
-    # === Core UI Logic ===
-
     def show_browser(self) -> None:
         self.stacked.setCurrentWidget(self.browser)
 
@@ -93,7 +92,6 @@ class MainWidget(QWidget):
         self.hide_mini_detail()
         self.stacked.setCurrentWidget(self.detail)
         self.detail.draw_details(asset)
-
 
     def toggle_mini_detail(self, asset) -> None:
         if self.is_showing_mini_detail:
@@ -139,6 +137,8 @@ class MainWidget(QWidget):
     def _on_scan_clicked(self) -> None:
         self.scan_clicked.emit()
 
-
     def _on_delete_asset_clicked(self, asset_id: int) -> None:
         self.delete_asset_clicked.emit(asset_id)
+
+    def set_current_asset(self, asset: dict) -> None:
+        self.current_asset = asset

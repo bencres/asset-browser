@@ -28,9 +28,6 @@ class Presenter(QWidget):
         self.bind_events()
         self.widget.browser.draw_previews(self.previews)
 
-    def reload_assets(self):
-        pass
-
     def bind_events(self):
         self.widget.search_text_changed.connect(self.on_search_changed)
         self.widget.filter_changed.connect(self.on_filter_changed)
@@ -102,6 +99,12 @@ class Presenter(QWidget):
             return
 
         self.widget.toggle_mini_detail(asset)
+
+    def on_asset_preview_clicked(self, asset_id: int):
+        asset = self._get_asset_by_id(asset_id)
+        self.widget.set_current_asset(asset)
+        self.widget.show_message(
+            f"Asset clicked: {asset['name']}", "info", 3000)
 
     def on_asset_preview_double_clicked(self, asset_id: int):
         asset = self._get_asset_by_id(asset_id)
@@ -175,7 +178,6 @@ class Presenter(QWidget):
 
         return filtered_assets
 
-
     def _create_previews_list(self, assets: list) -> List[Preview]:
         """
         From a flat list of asset dicts, create a list of Preview widgets.
@@ -243,10 +245,13 @@ class Presenter(QWidget):
                 asset_id=asset_id,
                 parent=None,
             )
+            # Connect events
             asset_preview.show_mini_details.connect(
                 self.on_asset_preview_clicked)
             asset_preview.asset_double_clicked.connect(
                 self.on_asset_preview_double_clicked)
+            asset_preview.asset_clicked.connect(
+                self.on_asset_preview_clicked)
             previews.append(asset_preview)
 
         return previews
