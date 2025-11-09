@@ -38,13 +38,6 @@ class Toolbar(QWidget):
         self.btn_scan.setToolTip("Scan asset directory for new assets")
         self.btn_scan.clicked.connect(self._scan_clicked)
 
-        # Log Viewer button (icon only)
-        self.btn_log_viewer = QPushButton()
-        self.btn_log_viewer.setToolTip("View Logs")
-        self.btn_log_viewer.setFixedSize(36, 36)
-        self.btn_log_viewer.clicked.connect(self._log_viewer_clicked)
-        self._set_log_icon()
-
         # Search bar
         search_label = QLabel("Search:")
         search_label.setStyleSheet("color: #e0e0e0; font-weight: 500;")
@@ -87,9 +80,6 @@ class Toolbar(QWidget):
         self.btn_import.clicked.connect(self._on_import_clicked)
 
         # Add widgets to layout
-        # layout.addWidget(self.btn_scan)
-        # layout.addWidget(self.btn_log_viewer)
-        layout.addWidget(search_label)
         layout.addWidget(self.search_bar, 1)  # Stretch factor 1
         layout.addWidget(filter_label)
         layout.addWidget(self.filter_combo)
@@ -97,28 +87,6 @@ class Toolbar(QWidget):
         layout.addWidget(self.cb_renderer)
         layout.addWidget(self.btn_import)
         layout.addStretch()
-
-    def _set_log_icon(self):
-        """Set the icon for the log viewer button using Unicode or create a simple icon."""
-        # Use a document/list icon as text
-        self.btn_log_viewer.setText("≡")
-        self.btn_log_viewer.setStyleSheet("""
-            QPushButton {
-                background-color: #1e1e1e;
-                color: #e0e0e0;
-                border: 2px solid #3d3d3d;
-                border-radius: 6px;
-                font-size: 32pt;
-                padding-bottom: 4px;
-            }
-            QPushButton:hover {
-                border: 2px solid #4d4d4d;
-                background-color: #2d2d2d;
-            }
-            QPushButton:pressed {
-                background-color: #3d3d3d;
-            }
-        """)
 
     def show_import_button(self):
         """Show the import button."""
@@ -130,10 +98,6 @@ class Toolbar(QWidget):
 
     def _scan_clicked(self):
         self.scanClicked.emit()
-
-    def _log_viewer_clicked(self):
-        """Handle log viewer button click."""
-        self.logViewerClicked.emit()
 
     def _apply_style(self):
         """Apply styling to the toolbar and its components."""
