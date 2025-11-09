@@ -32,13 +32,12 @@ class Presenter(QWidget):
         pass
 
     def bind_events(self):
-        self.widget.searchTextChanged.connect(self.on_search_changed)
-        self.widget.filterChanged.connect(self.on_filter_changed)
-        self.widget.scanClicked.connect(self.on_scan_clicked)
-        self.widget.importClicked.connect(self.on_import_asset)
-        self.widget.logViewerClicked.connect(self.on_log_viewer_clicked)
-        self.widget.rendererChanged.connect(self.on_renderer_changed)
-        self.widget.deleteAssetClicked.connect(self.on_delete_asset)
+        self.widget.search_text_changed.connect(self.on_search_changed)
+        self.widget.filter_changed.connect(self.on_filter_changed)
+        self.widget.scan_clicked.connect(self.on_scan_clicked)
+        self.widget.import_clicked.connect(self.on_import_asset)
+        self.widget.renderer_changed.connect(self.on_renderer_changed)
+        self.widget.delete_asset_clicked.connect(self.on_delete_asset)
 
     def on_scan_clicked(self):
         self.widget.show_message("Starting sync operation...", "info")

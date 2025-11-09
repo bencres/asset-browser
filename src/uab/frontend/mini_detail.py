@@ -20,7 +20,7 @@ class MiniDetail(QWidget):
     This view appears in the splitter when a preview is clicked.
     """
 
-    closeClicked = Signal()  # Emitted when close button is clicked
+    close_clicked = Signal()  # Emitted when close button is clicked
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -213,7 +213,7 @@ class MiniDetail(QWidget):
 
     def _on_close_clicked(self):
         """Handle close button click."""
-        self.closeClicked.emit()
+        self.close_clicked.emit()
 
     def show_asset(self, asset: dict) -> None:
         """

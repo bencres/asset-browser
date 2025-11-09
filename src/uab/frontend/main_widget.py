@@ -21,13 +21,12 @@ class MainWidget(QWidget):
     """
 
     # Signals to forward from this central widget
-    searchTextChanged = Signal(str)
-    filterChanged = Signal(str)
-    rendererChanged = Signal(str)
-    importClicked = Signal(str)
-    scanClicked = Signal()
-    logViewerClicked = Signal()
-    deleteAssetClicked = Signal(int)
+    search_text_changed = Signal(str)
+    filter_changed = Signal(str)
+    renderer_changed = Signal(str)
+    import_clicked = Signal(str)
+    scan_clicked = Signal()
+    delete_asset_clicked = Signal(int)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -39,8 +38,8 @@ class MainWidget(QWidget):
 
         # Toolbar at top
         self.toolbar = Toolbar()
-        self.toolbar.searchTextChanged.connect(self._on_search_changed)
-        self.toolbar.filterChanged.connect(self._on_filter_changed)
+        self.toolbar.search_text_changed.connect(self._on_search_changed)
+        self.toolbar.filter_changed.connect(self._on_filter_changed)
         self.layout.addWidget(self.toolbar)
 
         # === Main Splitter ===
@@ -75,10 +74,10 @@ class MainWidget(QWidget):
         # --- Connections ---
         self.detail.back_clicked.connect(self.show_browser)
         self.detail.delete_clicked.connect(self._on_delete_asset_clicked)
-        self.toolbar.importAssetSelected.connect(self._on_import_clicked)
-        self.toolbar.scanClicked.connect(self._on_scan_clicked)
-        self.toolbar.rendererChanged.connect(self._on_renderer_changed)
-        self.mini_detail.closeClicked.connect(self.hide_mini_detail)
+        self.toolbar.import_asset_selected.connect(self._on_import_clicked)
+        self.toolbar.scan_clicked.connect(self._on_scan_clicked)
+        self.toolbar.renderer_changed.connect(self._on_renderer_changed)
+        self.mini_detail.close_clicked.connect(self.hide_mini_detail)
 
         self.is_showing_mini_detail = False
 
@@ -126,20 +125,20 @@ class MainWidget(QWidget):
 
     def _on_search_changed(self, text: str) -> None:
         self.hide_mini_detail()
-        self.searchTextChanged.emit(text)
+        self.search_text_changed.emit(text)
 
     def _on_filter_changed(self, filter_text: str) -> None:
-        self.filterChanged.emit(filter_text)
+        self.filter_changed.emit(filter_text)
 
     def _on_renderer_changed(self, renderer_text: str) -> None:
-        self.rendererChanged.emit(renderer_text)
+        self.renderer_changed.emit(renderer_text)
 
     def _on_import_clicked(self, asset_path: str) -> None:
-        self.importClicked.emit(asset_path)
+        self.import_clicked.emit(asset_path)
 
     def _on_scan_clicked(self) -> None:
-        self.scanClicked.emit()
+        self.scan_clicked.emit()
 
 
     def _on_delete_asset_clicked(self, asset_id: int) -> None:
-        self.deleteAssetClicked.emit(asset_id)
+        self.delete_asset_clicked.emit(asset_id)

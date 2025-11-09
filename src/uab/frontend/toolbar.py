@@ -12,12 +12,12 @@ class Toolbar(QWidget):
     Toolbar widget containing main user controls.
     """
 
-    searchTextChanged = Signal(str)  # Emits search text when it changes
-    filterChanged = Signal(str)  # Emits selected filter when it changes
-    importAssetSelected = Signal(str)
-    scanClicked = Signal()
-    logViewerClicked = Signal()
-    rendererChanged = Signal(str)
+    search_text_changed = Signal(str)  # Emits search text when it changes
+    filter_changed = Signal(str)  # Emits selected filter when it changes
+    import_asset_selected = Signal(str)
+    scan_clicked = Signal()
+    log_viewer_clicked = Signal()
+    renderer_changed = Signal(str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -97,7 +97,7 @@ class Toolbar(QWidget):
         self.btn_import.setVisible(False)
 
     def _scan_clicked(self):
-        self.scanClicked.emit()
+        self.scan_clicked.emit()
 
     def _apply_style(self):
         """Apply styling to the toolbar and its components."""
@@ -165,11 +165,11 @@ class Toolbar(QWidget):
 
     def _on_search_changed(self, text: str):
         """Handle search text changes."""
-        self.searchTextChanged.emit(text)
+        self.search_text_changed.emit(text)
 
     def _on_filter_changed(self, text: str):
         """Handle filter selection changes."""
-        self.filterChanged.emit(text)
+        self.filter_changed.emit(text)
 
     def get_search_text(self) -> str:
         """
@@ -224,7 +224,7 @@ class Toolbar(QWidget):
             self.cb_renderer.addItem(renderer)
 
     def _on_renderer_changed(self, text: str):
-        self.rendererChanged.emit(text)
+        self.renderer_changed.emit(text)
 
     def clear_search(self):
         """Clear the search bar."""
@@ -243,4 +243,4 @@ class Toolbar(QWidget):
             file = file_dialog.selectedFiles()
             if file:
                 # Emit the first selected path
-                self.importAssetSelected.emit(file[0])
+                self.import_asset_selected.emit(file[0])
