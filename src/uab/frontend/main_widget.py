@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QSplitter,
     QStackedWidget,
 )
+from uab.core.presenter import Presenter
 from uab.frontend.browser import Browser
 from uab.frontend.detail import Detail
 from uab.frontend.tree import Tree
@@ -94,6 +95,9 @@ class MainWidget(QWidget):
         self.log_viewer.closeRequested.connect(self.show_browser)
 
         self.is_showing_mini_detail = False
+
+        # This GUI's Presenter
+        self.presenter = Presenter(self)
 
     # === Core UI Logic ===
 

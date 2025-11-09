@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QMainWindow
 
 from uab.frontend.main_widget import MainWidget
 
-class Window(QMainWindow):
+class MainWindow(QMainWindow):
     """
     Thin QMainWindow wrapper that hosts the MainWidget as its central widget.
     """
