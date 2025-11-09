@@ -23,18 +23,15 @@ class Presenter(QWidget):
             ["Karma", "Mantra", "Renderman", "Redshift", "Arnold", "V-Ray"])
 
         self.assets = self._load_assets()
-        self.directory_tree = self._build_directory_tree(self.assets)
 
         self.previews = self._create_previews_list(self.assets)
         self.bind_events()
         self.widget.browser.draw_previews(self.previews)
-        self.widget.tree.draw_tree(self.directory_tree)
 
     def reload_assets(self):
         pass
 
     def bind_events(self):
-        self.widget.treeItemSelected.connect(self.on_tree_item_clicked)
         self.widget.searchTextChanged.connect(self.on_search_changed)
         self.widget.filterChanged.connect(self.on_filter_changed)
         self.widget.scanClicked.connect(self.on_scan_clicked)
@@ -114,23 +111,6 @@ class Presenter(QWidget):
     def on_back_clicked(self, widget: QWidget):
         pass
 
-    def on_tree_item_clicked(self, path: str):
-        """
-        Handle tree item click by filtering assets for the selected directory path.
-
-        Args:
-            path: The directory path from the tree (e.g., "Local/HDRIs")
-        """
-        # Get assets that are in subdirectories of the clicked path
-        filtered_assets = self._get_assets_in_directory(path)
-
-        # Create previews for the filtered assets
-        previews = self._create_previews_list(filtered_assets)
-
-        # Update the browser display
-        self.widget.browser.draw_previews(previews)
-        self.widget.show_browser()
-
     def on_edit_metadata(self, asset: dict):
         pass
 
@@ -139,10 +119,8 @@ class Presenter(QWidget):
 
     def _refresh_gui(self):
         self.assets = self._load_assets()
-        self.directory_tree = self._build_directory_tree(self.assets)
         self.previews = self._create_previews_list(self.assets)
         self.widget.browser.draw_previews(self.previews)
-        self.widget.tree.draw_tree(self.directory_tree)
 
     def _set_adapter(self, app):
         pass
@@ -198,65 +176,6 @@ class Presenter(QWidget):
 
         return filtered_assets
 
-    def _build_directory_tree(self, assets: list) -> Dict[str, Any]:
-        """
-        Build a nested dictionary representing the directory tree starting from the 'Assets' directory.
-        Each path component after 'Assets' becomes a nested dict key. At the leaf directory,
-        the asset is appended to a special '__assets__' list to allow UIs to access leaf items.
-
-        Example output shape (starting from Assets):
-        {
-            'Local': {
-                'HDRIs': {
-                    'Outdoors': {
-                        'Dawn': {
-                            'dawn_farm_01': {
-                                '__assets__': [asset_obj]
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        """
-        tree: Dict[str, Any] = {}
-        if not assets:
-            return tree
-
-        for asset in assets:
-            path_str = (asset or {}).get('directory_path')
-            if not path_str or not isinstance(path_str, str):
-                # Skip assets without a valid directory path
-                continue
-
-            # Normalize separators and strip leading/trailing slashes to avoid empty components
-            norm = os.path.normpath(path_str).strip('/')
-            parts: List[str] = [p for p in norm.split(os.sep) if p]
-
-            # Find the "Assets" directory and only use the path after it
-            try:
-                assets_index = parts.index(self.ROOT_ASSET_DIRECTORY)
-                # Get only the parts after "Assets"
-                relative_parts = parts[assets_index + 1:]
-            except ValueError:
-                # "Assets" not found in path, skip this asset
-                continue
-
-            if not relative_parts:
-                # Path has no components after "Assets"; attach asset at root
-                leaf = tree.setdefault('__assets__', [])
-                leaf.append(asset)
-                continue
-
-            node = tree
-            for part in relative_parts:
-                node = node.setdefault(part, {})
-
-            # Attach the asset to the leaf directory
-            leaf_assets = node.setdefault('__assets__', [])
-            leaf_assets.append(asset)
-
-        return tree
 
     def _create_previews_list(self, assets: list) -> List[Preview]:
         """
