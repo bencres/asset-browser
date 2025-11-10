@@ -42,8 +42,8 @@ class Presenter(QWidget):
         self.spawn_asset(self.current_asset)
 
     def spawn_asset(self, asset: dict):
-        self.widget.show_message(
-            f"Spawning asset: {asset['name']}", "info", 3000)
+        # Implemented in derived classes
+        pass
 
     def on_scan_clicked(self):
         self.widget.show_message("Starting sync operation...", "info")

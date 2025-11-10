@@ -11,4 +11,12 @@ class HoudiniPresenter(Presenter):
         super().__init__(view)
 
     def spawn_asset(self, asset: dict):
-        pass
+        self.create_dome_light(asset["directory_path"])
+
+    def create_dome_light(self, directory_path: str, light_name: str = "dome_light"):
+        stage = hou.node("/stage")
+        dome = stage.createNode("domelight", node_name=light_name)
+        tex = dome.parm("xn__inputstexturefile_r3ah")
+        tex.set(directory_path)
+        dome.moveToGoodPosition()
+        return dome
