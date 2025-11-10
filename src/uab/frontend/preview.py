@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from PySide6.QtCore import Signal, Qt, QSize, QEvent
 from PySide6.QtGui import QPixmap, QColor
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsDropShadowEffect, QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QSizePolicy, QWidget, QLabel, QVBoxLayout, QGraphicsDropShadowEffect, QHBoxLayout, QPushButton
 
 
 class Preview(QWidget):
@@ -29,7 +29,7 @@ class Preview(QWidget):
         self._is_image_hovered = False
 
         # Set fixed size for the preview widget
-        self.setFixedSize(QSize(180, 220))
+        # self.setMinimumSize(QSize(90, 200))
 
         # Apply initial styling (no border initially)
         self.setStyleSheet("""
@@ -47,7 +47,12 @@ class Preview(QWidget):
 
         # Image container with background
         self.image_container = QWidget()
-        self.image_container.setFixedSize(160, 160)
+        # self.image_container.setFixedSize(160, 160)
+        self.image_container.setMinimumSize(100, 100)
+        self.image_container.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding
+        )
         self.image_container.setCursor(Qt.CursorShape.PointingHandCursor)
         self.image_container.setStyleSheet("""
             QWidget {
@@ -104,7 +109,7 @@ class Preview(QWidget):
 
         # Info button
         self.info_button = QPushButton("≡")
-        self.info_button.setFixedSize(20, 20)
+        self.info_button.setFixedSize(10, 10)
         self.info_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.info_button.setToolTip("Show asset details")
         self.info_button.setStyleSheet("""
@@ -112,7 +117,7 @@ class Preview(QWidget):
                 background-color: #3d3d3d;
                 color: #e8e8e8;
                 border: 1px solid #595959;
-                border-radius: 4px;
+                border-radius: 1px;
                 font-size: 12pt;
                 font-weight: bold;
                 padding: 0px;
@@ -280,3 +285,15 @@ class Preview(QWidget):
             if self.image_container.geometry().contains(event.pos()):
                 self.asset_double_clicked.emit(self.asset_id)
         super().mouseDoubleClickEvent(event)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if not self.thumbnail.isNull():
+            container_size = self.image_container.size()
+            scaled_pixmap = self.thumbnail.scaled(
+                container_size.width() - 4,
+                container_size.height() - 4,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+            self.label_icon.setPixmap(scaled_pixmap)

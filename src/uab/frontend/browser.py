@@ -29,7 +29,7 @@ class Browser(QWidget):
         # Main layout
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+        main_layout.setSpacing(2)
 
         # Create scroll area to contain the grid
         self.scroll_area = QScrollArea(self)
@@ -104,9 +104,9 @@ class Browser(QWidget):
 
         # Reset stretch factors
         for i in range(self.grid.columnCount()):
-            self.grid.setColumnStretch(i, 0)
+            self.grid.setColumnStretch(i, 1)
         for i in range(self.grid.rowCount()):
-            self.grid.setRowStretch(i, 0)
+            self.grid.setRowStretch(i, 1)
 
     def _draw_previews(self, previews: List[Preview]) -> None:
         """
