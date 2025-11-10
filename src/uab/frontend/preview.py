@@ -16,15 +16,16 @@ class Preview(QWidget):
 
     def __init__(
         self,
+        asset_id,
         thumbnail: Optional[QPixmap] = None,
         asset_name: str = "",
-        asset_id: int = None,
         parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent)
+        self.is_selected: bool = False
         self.thumbnail: QPixmap = thumbnail or QPixmap()
         self.asset_name: str = asset_name
-        self.asset_id: Optional[int] = asset_id
+        self.asset_id = asset_id
         self._is_image_hovered = False
 
         # Set fixed size for the preview widget
@@ -159,17 +160,62 @@ class Preview(QWidget):
 
     def _on_image_enter(self):
         """Handle mouse entering the image container."""
+        if self.is_selected:
+            return
         self._is_image_hovered = True
-        self._apply_image_hover_style(True)
+        self._apply_image_hovered_style(True)
 
     def _on_image_leave(self):
         """Handle mouse leaving the image container."""
+        if self.is_selected:
+            return
         self._is_image_hovered = False
-        self._apply_image_hover_style(False)
+        self._apply_image_hovered_style(False)
 
-    def _apply_image_hover_style(self, hovered: bool):
+    def _apply_image_hovered_style(self, hovered: bool):
         """Apply styling based on image hover state."""
         if hovered:
+            # Highlight the entire widget
+            self.setStyleSheet("""
+                Preview {
+                    background-color: #2d2d2d;
+                    border: 2px solid #506680;
+                    border-radius: 12px;
+                }
+            """)
+            # Highlight the image container border
+            self.image_container.setStyleSheet("""
+                QWidget {
+                    background-color: #1a1a1a;
+                    border-radius: 8px;
+                    border: 2px solid #506680;
+                }
+            """)
+            # Enable shadow effect
+            self.shadow.setEnabled(False)
+        else:
+            # Reset to normal style
+            self.setStyleSheet("""
+                Preview {
+                    background-color: #242424;
+                    border: 2px solid #333333;
+                    border-radius: 12px;
+                }
+            """)
+            # Reset image container border
+            self.image_container.setStyleSheet("""
+                QWidget {
+                    background-color: #1a1a1a;
+                    border-radius: 8px;
+                    border: 2px solid #333333;
+                }
+            """)
+            # Disable shadow effect
+            self.shadow.setEnabled(False)
+
+    def _apply_image_selected_style(self, selected: bool):
+        """Apply styling based on image hover state."""
+        if selected:
             # Highlight the entire widget
             self.setStyleSheet("""
                 Preview {
@@ -212,10 +258,19 @@ class Preview(QWidget):
         """Handle info button click."""
         self.show_mini_details.emit(self.asset_id)
 
+    def set_selected(self, selected: bool):
+        if selected:
+            self.is_selected = True
+            self._apply_image_selected_style(True)
+        else:
+            self.is_selected = False
+            self._apply_image_selected_style(False)
+
     def mousePressEvent(self, event):
         """Handle mouse press event on the image container."""
         if event.button() == Qt.MouseButton.LeftButton:
-            self.asset_clicked.emit(self.asset_id)
+            if self.image_container.geometry().contains(event.pos()):
+                self.asset_clicked.emit(self.asset_id)
         super().mousePressEvent(event)
 
     def mouseDoubleClickEvent(self, event):

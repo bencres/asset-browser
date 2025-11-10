@@ -15,6 +15,10 @@ class Presenter(QWidget):
         SERVER_URL = "http://127.0.0.1:8000"
         self.asset_service = AssetService(SERVER_URL, LOCAL_ASSETS_DIR)
         self.ROOT_ASSET_DIRECTORY = "Assets"
+        self.assets = []
+        self.previews = []
+        self.current_asset = None
+
         self.widget = view
         self.win = None
 
@@ -22,11 +26,8 @@ class Presenter(QWidget):
         self.widget.toolbar.set_allowed_renderers(
             ["Karma", "Mantra", "Renderman", "Redshift", "Arnold", "V-Ray"])
 
-        self.assets = self._load_assets()
-
-        self.previews = self._create_previews_list(self.assets)
         self.bind_events()
-        self.widget.browser.draw_previews(self.previews)
+        self._refresh_gui()
 
     def bind_events(self):
         self.widget.search_text_changed.connect(self.on_search_changed)
@@ -92,19 +93,16 @@ class Presenter(QWidget):
         # TODO: this is a quick fix. Should actually query the database.
         return next((a for a in self.assets if a.get('id') == asset_id), None)
 
-    def on_asset_preview_clicked(self, asset_id: int) -> None:
+    def on_asset_mini_detail_clicked(self, asset_id: int) -> None:
         asset = self._get_asset_by_id(asset_id)
-        if not asset:
-            self.widget.show_message("Asset not found!", "warning", 3000)
-            return
-
         self.widget.toggle_mini_detail(asset)
 
-    def on_asset_preview_clicked(self, asset_id: int):
-        asset = self._get_asset_by_id(asset_id)
-        self.widget.set_current_asset(asset)
-        self.widget.show_message(
-            f"Asset clicked: {asset['name']}", "info", 3000)
+    def on_asset_preview_clicked(self, asset_id: int) -> None:
+        preview = self.get_preview_by_id(asset_id)
+        self.widget.set_new_selected_preview(preview)
+
+    def get_preview_by_id(self, id: int) -> Preview:
+        return next((p for p in self.previews if p.asset_id == id), None)
 
     def on_asset_preview_double_clicked(self, asset_id: int):
         asset = self._get_asset_by_id(asset_id)
@@ -122,13 +120,7 @@ class Presenter(QWidget):
     def _refresh_gui(self):
         self.assets = self._load_assets()
         self.previews = self._create_previews_list(self.assets)
-        self.widget.browser.draw_previews(self.previews)
-
-    def _set_adapter(self, app):
-        pass
-
-    def _detect_application(self):
-        pass
+        self.widget.draw_previews(self.previews)
 
     def _load_assets(self):
         return self.asset_service.get_assets()
@@ -217,37 +209,15 @@ class Presenter(QWidget):
                 except Exception as e:
                     print(f"Error loading HDR preview for {norm}: {e}")
                     pixmap = QPixmap()
-            else:
-                # Original behavior: look for preview file in directory
-                preview_path = None
-                if norm:
-                    # Try both the normalized path and a version with a leading slash if missing
-                    candidate_bases = [norm]
-                    if not norm.startswith(os.sep):
-                        candidate_bases.append(os.sep + norm)
-
-                    exts = ['.png', '.webp', '.jpg']
-                    for base in candidate_bases:
-                        for ext in exts:
-                            cand = os.path.join(base, 'preview' + ext)
-                            if os.path.isfile(cand):
-                                preview_path = cand
-                                break
-                        if preview_path:
-                            break
-
-                # Load pixmap (empty if not found)
-                pixmap = QPixmap(preview_path) if preview_path else QPixmap()
-
             asset_preview = Preview(
+                asset_id,
                 thumbnail=pixmap,
                 asset_name=name,
-                asset_id=asset_id,
                 parent=None,
             )
             # Connect events
             asset_preview.show_mini_details.connect(
-                self.on_asset_preview_clicked)
+                self.on_asset_mini_detail_clicked)
             asset_preview.asset_double_clicked.connect(
                 self.on_asset_preview_double_clicked)
             asset_preview.asset_clicked.connect(

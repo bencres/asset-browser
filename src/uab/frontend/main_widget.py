@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
 from uab.core.presenter import Presenter
 from uab.frontend.browser import Browser
 from uab.frontend.detail import Detail
+from uab.frontend.preview import Preview
 from uab.frontend.toolbar import Toolbar
 from uab.frontend.mini_detail import MiniDetail
 from uab.frontend.status_bar import StatusBar
@@ -20,7 +21,6 @@ class MainWidget(QWidget):
     Central widget containing the full UI layout of the Universal Asset Browser.
     """
 
-    # Signals to forward from this central widget
     search_text_changed = Signal(str)
     filter_changed = Signal(str)
     renderer_changed = Signal(str)
@@ -31,6 +31,8 @@ class MainWidget(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        self.current_asset = None
+        self.current_previews = []
 
         # Root layout
         self.layout = QVBoxLayout(self)
@@ -142,3 +144,18 @@ class MainWidget(QWidget):
 
     def set_current_asset(self, asset: dict) -> None:
         self.current_asset = asset
+
+    def draw_previews(self, previews: list[Preview]) -> None:
+        self.current_previews = previews
+        self.browser.refresh_previews(previews)
+
+    def set_new_selected_preview(self, preview: Preview) -> Preview:
+        if preview.is_selected:
+            preview.set_selected(False)
+            return preview
+        for p in self.current_previews:
+            if not p.asset_id == preview.asset_id:
+                p.set_selected(False)
+            else:
+                p.set_selected(True)
+        return preview
