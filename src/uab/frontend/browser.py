@@ -1,5 +1,5 @@
 from typing import List, Optional
-from PySide6.QtCore import Qt, QSize, QPoint
+from PySide6.QtCore import Qt, QSize, QPoint, QTimer
 from PySide6.QtWidgets import (
     QWidget,
     QGridLayout,
@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QVBoxLayout,
 )
-from PySide6.QtGui import QWheelEvent
+from PySide6.QtGui import QWheelEvent, QShowEvent
 from PySide6.QtCore import QEvent
 
 from uab.frontend.preview import Preview
@@ -85,6 +85,7 @@ class Browser(QWidget):
         self._cell_min_width = 180            # base cell size
         self._last_cols = 0                   # cache column count
         self._scale_factor = 1.0              # zoom level (1.0 = default)
+        self._has_shown = False               # track if widget has been shown
 
     # ------------------------------------------------------------------
     # Public API
@@ -147,7 +148,14 @@ class Browser(QWidget):
     def _compute_column_count(self) -> int:
         """Determine how many cells fit per row."""
         viewport = self.scroll_area.viewport()
-        available = max(1, viewport.width())
+        available = viewport.width()
+
+        # If viewport hasn't been laid out yet, return a reasonable default
+        # This will be corrected when showEvent or resizeEvent fires
+        if available <= 0:
+            # Estimate based on a typical window width (e.g., 1200px)
+            available = 1200
+
         spacing = self.grid.spacing()
         margins = self.grid.contentsMargins()
         available -= margins.left() + margins.right()
@@ -189,6 +197,14 @@ class Browser(QWidget):
                 self._handle_zoom(wheel_event)
                 return True  # Event handled, don't propagate
         return super().eventFilter(obj, event)
+
+    def showEvent(self, event: QShowEvent):
+        """Trigger reflow when widget is first shown to fix initial layout."""
+        super().showEvent(event)
+        if not self._has_shown and self._previews:
+            # Defer reflow to ensure layout is complete
+            QTimer.singleShot(0, self._reflow_grid)
+            self._has_shown = True
 
     def resizeEvent(self, event):
         """Re‑layout on resize if column count changes."""
