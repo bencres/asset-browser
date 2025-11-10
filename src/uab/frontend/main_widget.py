@@ -43,9 +43,10 @@ class MainWidget(QWidget):
         self.toolbar = Toolbar()
         self.toolbar.search_text_changed.connect(self._on_search_changed)
         self.toolbar.filter_changed.connect(self._on_filter_changed)
+        self.toolbar.spawn_clicked.connect(self._on_spawn_clicked)
         self.layout.addWidget(self.toolbar)
 
-        # === Main Splitter ===
+        # Main Splitter
         self.main_splitter = QSplitter()
 
         # Stacked (browser/detail/log)
@@ -74,7 +75,7 @@ class MainWidget(QWidget):
         self.status_bar.setStyleSheet(self.status_bar.styleSheet())
         self.status_bar.update()
 
-        # --- Connections ---
+        # Connections
         self.detail.back_clicked.connect(self.show_browser)
         self.detail.delete_clicked.connect(self._on_delete_asset_clicked)
         self.toolbar.import_asset_selected.connect(self._on_import_clicked)
@@ -84,7 +85,6 @@ class MainWidget(QWidget):
 
         self.is_showing_mini_detail = False
 
-        # This GUI's Presenter
         self.presenter = Presenter(self)
 
     def show_browser(self) -> None:
@@ -141,6 +141,9 @@ class MainWidget(QWidget):
 
     def _on_delete_asset_clicked(self, asset_id: int) -> None:
         self.delete_asset_clicked.emit(asset_id)
+
+    def _on_spawn_clicked(self) -> None:
+        self.spawn_clicked.emit()
 
     def set_current_asset(self, asset: dict) -> None:
         self.current_asset = asset

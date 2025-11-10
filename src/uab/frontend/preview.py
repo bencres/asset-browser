@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 from PySide6.QtCore import Signal, Qt, QSize, QEvent
-from PySide6.QtGui import QPixmap, QPalette, QColor
+from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsDropShadowEffect, QHBoxLayout, QPushButton
 
 

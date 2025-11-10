@@ -36,6 +36,14 @@ class Presenter(QWidget):
         self.widget.import_clicked.connect(self.on_import_asset)
         self.widget.renderer_changed.connect(self.on_renderer_changed)
         self.widget.delete_asset_clicked.connect(self.on_delete_asset)
+        self.widget.spawn_clicked.connect(self.on_spawn_clicked)
+
+    def on_spawn_clicked(self):
+        self.spawn_asset(self.current_asset)
+
+    def spawn_asset(self, asset: dict):
+        self.widget.show_message(
+            f"Spawning asset: {asset['name']}", "info", 3000)
 
     def on_scan_clicked(self):
         self.widget.show_message("Starting sync operation...", "info")
@@ -99,7 +107,10 @@ class Presenter(QWidget):
 
     def on_asset_preview_clicked(self, asset_id: int) -> None:
         preview = self.get_preview_by_id(asset_id)
+        self.current_asset = self._get_asset_by_id(asset_id)
         self.widget.set_new_selected_preview(preview)
+        self.widget.show_message(
+            f"Asset clicked: {self.current_asset['name']}", "info", 3000)
 
     def get_preview_by_id(self, id: int) -> Preview:
         return next((p for p in self.previews if p.asset_id == id), None)
