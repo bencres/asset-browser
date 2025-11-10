@@ -7,7 +7,9 @@ from PySide6.QtWidgets import (
     QSplitter,
     QStackedWidget,
 )
-from uab.core.presenter import Presenter
+from uab.core.base_presenter import Presenter
+from uab.core.desktop_presenter import DesktopPresenter
+from uab.core.houdini_presenter import HoudiniPresenter
 from uab.frontend.browser import Browser
 from uab.frontend.detail import Detail
 from uab.frontend.preview import Preview
@@ -29,7 +31,7 @@ class MainWidget(QWidget):
     delete_asset_clicked = Signal(int)
     spawn_clicked = Signal()
 
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(self, dcc: str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.current_asset = None
         self.current_previews = []
@@ -85,7 +87,13 @@ class MainWidget(QWidget):
 
         self.is_showing_mini_detail = False
 
-        self.presenter = Presenter(self)
+        match dcc:
+            case "hou":
+                self.presenter = HoudiniPresenter(self)
+            case "desktop":
+                self.presenter = DesktopPresenter(self)
+            case _:
+                raise ValueError(f"Invalid DCC: {dcc}")
 
     def show_browser(self) -> None:
         self.stacked.setCurrentWidget(self.browser)

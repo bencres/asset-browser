@@ -18,9 +18,9 @@ _server_thread = None
 
 def run():
     is_houdini = _get_current_dcc() == "hou"
-    
+
     server = _start_server()
-    
+
     if is_houdini:
         # In Houdini, keep the server running and return the widget
         global _server_instance
@@ -87,14 +87,15 @@ def _start_gui():
     print("Starting GUI...")
     match _get_current_dcc():
         case "hou":
-            return MainWidget()
+            return MainWidget("hou")
+        case "desktop":
+            app = QApplication(sys.argv)
+            win = MainWindow(MainWidget("desktop"))
+            win.show()
+            exit_code = app.exec()
+            return exit_code
         case _:
             pass
-    app = QApplication(sys.argv)
-    win = MainWindow(MainWidget())
-    win.show()
-    exit_code = app.exec()
-    return exit_code
 
 
 def _get_current_dcc():
@@ -103,7 +104,7 @@ def _get_current_dcc():
         import hou
         return "hou"
     except ImportError:
-        return None
+        return "desktop"
 
 
 def _wait_for_server(url, timeout=5, tick=0.25):
