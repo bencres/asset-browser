@@ -239,7 +239,7 @@ class Presenter(QWidget):
 
     def on_search_changed(self, text: str):
         filtered_assets = self.filter_assets_by_text(text)
-        self.widget.browser.draw_previews(
+        self.widget.draw_previews(
             self._create_previews_list(filtered_assets))
         self.widget.show_browser()
 
