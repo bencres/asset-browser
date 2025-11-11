@@ -37,7 +37,7 @@ class LargePreviewPopup(QDialog):
         self._pending_hide = False
 
     def set_pixmap(self, pm: QPixmap, percent_of_screen: float = 0.5):
-        # Fit to a large size (limit for screen safety).
+        # Fit to a large size (limit for screen safety)
         if pm.isNull():
             self.label.setText("No Preview")
             self.label.setStyleSheet("color:#888; font-size:10pt;")
@@ -70,7 +70,6 @@ class LargePreviewPopup(QDialog):
 
 
 class Preview(QWidget):
-    # (existing signals)
     show_mini_details = Signal(int)
     asset_clicked = Signal(int)
     asset_double_clicked = Signal(int)
@@ -90,7 +89,7 @@ class Preview(QWidget):
         self._hover = False
         self._large_preview = LargePreviewPopup(self)
 
-        # ---------------- core styling -----------------
+        # core styling
         self.setStyleSheet("""
             Preview {
                 background-color: #242424;
@@ -102,12 +101,12 @@ class Preview(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Expanding,
                            QSizePolicy.Policy.Expanding)
 
-        # ---------------- layout structure ----------------
+        # layout structure
         self.vlayout = QVBoxLayout(self)
         self.vlayout.setContentsMargins(4, 4, 4, 4)
         self.vlayout.setSpacing(2)
 
-        # --- image container ---
+        # image container
         self.image_container = QWidget()
         self.image_container.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -121,21 +120,21 @@ class Preview(QWidget):
         self.image_container.installEventFilter(self)
         self.vlayout.addWidget(self.image_container, 1)
 
-        # shadow for selection
+        # shadow for selected state
         self.shadow = QGraphicsDropShadowEffect(blurRadius=20)
         self.shadow.setColor(QColor(0, 150, 255, 180))
         self.shadow.setOffset(0, 0)
         self.shadow.setEnabled(False)
         self.image_container.setGraphicsEffect(self.shadow)
 
-        # image label
+        # image display
         img_layout = QVBoxLayout(self.image_container)
         img_layout.setContentsMargins(0, 0, 0, 0)
         self.label_icon = QLabel(alignment=Qt.AlignmentFlag.AlignCenter)
         self.label_icon.setScaledContents(False)
         img_layout.addWidget(self.label_icon)
 
-        # --- text/info row ---
+        # text/info row
         self.text_container = QWidget()
         tlay = QHBoxLayout(self.text_container)
         tlay.setContentsMargins(0, 0, 0, 0)
@@ -207,7 +206,7 @@ class Preview(QWidget):
         self._hover_timer = QTimer(self)
         self._hover_timer.setSingleShot(True)
         self._hover_timer.timeout.connect(self._actually_show_large_preview)
-        self._hover_timer.start(1000)  # 1000 ms = 1 s delay
+        self._hover_timer.start(1000)
 
     def _actually_show_large_preview(self):
         self._large_preview.set_pixmap(self.thumbnail)
@@ -248,8 +247,6 @@ class Preview(QWidget):
         if hasattr(self, "_hover_timer"):
             self._hover_timer.stop()
         self._large_preview.schedule_hide()
-
-    # Clicks and styling remain unchanged
 
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
