@@ -28,9 +28,6 @@ class Browser(QWidget):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
-        # ------------------------------
-        # Appearance
-        # ------------------------------
         self.setStyleSheet("""
             Browser {
                 background-color: #1e1e1e;
@@ -41,9 +38,6 @@ class Browser(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # ------------------------------
-        # Scrollable area for grid
-        # ------------------------------
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setHorizontalScrollBarPolicy(
@@ -56,9 +50,6 @@ class Browser(QWidget):
             }
         """)
 
-        # ------------------------------
-        # Internal grid container
-        # ------------------------------
         self.grid_container = QWidget()
         self.grid_container.setStyleSheet("""
             QWidget {
@@ -78,27 +69,20 @@ class Browser(QWidget):
         # Install event filter on viewport to intercept wheel events
         self.scroll_area.viewport().installEventFilter(self)
 
-        # ------------------------------
-        # State variables
-        # ------------------------------
         self._previews: List[Preview] = []
         self._cell_min_width = 180            # base cell size
         self._last_cols = 0                   # cache column count
         self._scale_factor = 1.0              # zoom level (1.0 = default)
         self._has_shown = False               # track if widget has been shown
 
-    # ------------------------------------------------------------------
     # Public API
-    # ------------------------------------------------------------------
 
     def refresh_previews(self, previews: List[Preview]) -> None:
         """Rebuild grid when previews change."""
         self._previews = list(previews or [])
         self._draw_previews()
 
-    # ------------------------------------------------------------------
     # Grid management
-    # ------------------------------------------------------------------
 
     def _clear_grid(self) -> None:
         """Remove all items from layout cleanly."""
@@ -180,9 +164,7 @@ class Browser(QWidget):
 
         self.grid.addWidget(empty_container, 0, 0, 1, -1)
 
-    # ------------------------------------------------------------------
     # Event Handlers
-    # ------------------------------------------------------------------
 
     def eventFilter(self, obj, event: QEvent) -> bool:
         """
@@ -234,7 +216,7 @@ class Browser(QWidget):
         # Compute new zoom
         delta = event.angleDelta().y() / 240.0
         factor_change = 1.0 + delta * 0.2
-        new_scale = max(0.3, min(self._scale_factor * factor_change, 5.0))
+        new_scale = max(0.3, min(self._scale_factor * factor_change, 2.74))
 
         # Ratio between old and new scales
         scale_ratio = new_scale / self._scale_factor
