@@ -240,7 +240,6 @@ class Toolbar(QWidget):
         # Open file dialog to select file or directory
         file_dialog = QFileDialog(self)
         file_dialog.setWindowTitle("Select File or Directory to Import")
-        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
         file_dialog.setOption(QFileDialog.Option.DontUseNativeDialog, False)
 
         # Execute dialog and get result

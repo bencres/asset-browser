@@ -69,13 +69,36 @@ class Presenter(QWidget):
             )
 
     def on_import_asset(self, asset_path):
-        print(
-            f"Importing asset: {asset_path if asset_path else 'MISSING PATH'}")
-        asset = self.asset_service.create_asset_req_body_from_path(asset_path)
-        self.asset_service.add_asset_to_db(asset)
-        self._refresh_gui()
-        self.widget.show_message(
-            f"Imported asset! {asset['name']}", "info", 3000)
+        if not asset_path:
+            print("Importing asset: MISSING PATH")
+            return
+
+        if os.path.isdir(asset_path):
+            print(f"Importing assets from directory: {asset_path}")
+            imported_count = 0
+            skipped_count = 0
+            print(os.listdir(asset_path))
+            for filename in os.listdir(asset_path):
+                file_path = os.path.join(asset_path, filename)
+                # TODO: add support for other file types
+                if os.path.isfile(file_path) and filename.lower().endswith('.hdr'):
+                    asset = self.asset_service.create_asset_req_body_from_path(
+                        file_path)
+                    self.asset_service.add_asset_to_db(asset)
+                    imported_count += 1
+                else:
+                    skipped_count += 1
+            self._refresh_gui()
+            self.widget.show_message(
+                f"Imported {imported_count} .hdr asset(s) from directory. Skipped {skipped_count} non-hdr file(s).", "info", 3000)
+        else:
+            print(f"Importing asset: {asset_path}")
+            asset = self.asset_service.create_asset_req_body_from_path(
+                asset_path)
+            self.asset_service.add_asset_to_db(asset)
+            self._refresh_gui()
+            self.widget.show_message(
+                f"Imported asset! {asset['name']}", "info", 3000)
 
     def on_delete_asset(self, asset_id):
         self.asset_service.remove_asset_from_db(asset_id)
