@@ -155,51 +155,6 @@ class Presenter(QWidget):
     def _load_assets(self):
         return self.asset_service.get_assets()
 
-    def _get_assets_in_directory(self, selected_path: str) -> List[Dict[str, Any]]:
-        """
-        Get all assets whose directory_path is within the selected path or any of its subdirectories.
-
-        Args:
-            selected_path: The path selected in the tree relative to Assets (e.g., "Local/HDRIs")
-
-        Returns:
-            List of asset dictionaries that are anywhere within the selected directory tree
-        """
-        # TODO: this is a quick fix. Should actually query the database.
-        filtered_assets = []
-
-        # Normalize the selected path
-        selected_path_normalized = os.path.normpath(selected_path).strip('/')
-        selected_parts = [
-            p for p in selected_path_normalized.split(os.sep) if p]
-
-        for asset in self.assets:
-            asset_path = asset.get('directory_path', '')
-            if not asset_path:
-                continue
-
-            # Normalize the asset path
-            asset_path_normalized = os.path.normpath(asset_path).strip('/')
-            asset_parts = [p for p in asset_path_normalized.split(os.sep) if p]
-
-            # Find where "Assets" is in the path
-            try:
-                assets_index = asset_parts.index(self.ROOT_ASSET_DIRECTORY)
-                # Get the path after "Assets"
-                relative_parts = asset_parts[assets_index + 1:]
-            except ValueError:
-                # "Assets" not found in path, skip this asset
-                continue
-
-            # Check if asset is within the selected directory or any subdirectory
-            # The asset path must be at least as long as the selected path
-            # and all parts of selected_path must match the beginning of relative_parts
-            if len(relative_parts) >= len(selected_parts):
-                if relative_parts[:len(selected_parts)] == selected_parts:
-                    filtered_assets.append(asset)
-
-        return filtered_assets
-
     def _create_previews_list(self, assets: list) -> List[Preview]:
         """
         From a flat list of asset dicts, create a list of Preview widgets.
