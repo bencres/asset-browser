@@ -1,6 +1,7 @@
 import pathlib as pl
 import requests
 
+
 class AssetService:
     def __init__(self, server_url: str, asset_directory_path: str):
         self.url = server_url
@@ -14,6 +15,14 @@ class AssetService:
         except Exception as e:
             print(e)
 
+    def get_asset_by_id(self, asset_id: int):
+        try:
+            response = requests.get(self.url + f"/assets/{asset_id}")
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error getting asset with id {asset_id}: {e}")
+
     def set_asset_directory(self, directory_path: str):
         """Update the asset directory and recreate the sync service."""
         self.asset_directory_path = pl.Path(directory_path)
@@ -22,7 +31,8 @@ class AssetService:
         asset_name = asset_request_body.get('name', 'unknown')
         asset_path = asset_request_body.get('directory_path', '')
         try:
-            response = requests.post(self.url + "/assets", json=asset_request_body)
+            response = requests.post(
+                self.url + "/assets", json=asset_request_body)
             response.raise_for_status()  # Raise an exception for bad status codes
         except requests.exceptions.RequestException as e:
             print(f"Error posting asset {asset_name} at {asset_path}: {e}")

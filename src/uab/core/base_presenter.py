@@ -120,17 +120,13 @@ class Presenter(QWidget):
             self.widget.show_message(
                 "No sync logs available. Run a scan first.", "warning", 3000)
 
-    def _get_asset_by_id(self, asset_id: int) -> dict:
-        # TODO: this is a quick fix. Should actually query the database.
-        return next((a for a in self.assets if a.get('id') == asset_id), None)
-
     def on_asset_mini_detail_clicked(self, asset_id: int) -> None:
-        asset = self._get_asset_by_id(asset_id)
+        asset = self.asset_service.get_asset_by_id(asset_id)
         self.widget.toggle_mini_detail(asset)
 
     def on_asset_preview_clicked(self, asset_id: int) -> None:
         preview = self.get_preview_by_id(asset_id)
-        self.current_asset = self._get_asset_by_id(asset_id)
+        self.current_asset = self.asset_service.get_asset_by_id(asset_id)
         self.widget.set_new_selected_preview(preview)
         self.widget.show_message(
             f"Asset clicked: {self.current_asset['name']}", "info", 3000)
@@ -139,7 +135,7 @@ class Presenter(QWidget):
         return next((p for p in self.previews if p.asset_id == id), None)
 
     def on_asset_preview_double_clicked(self, asset_id: int):
-        asset = self._get_asset_by_id(asset_id)
+        asset = self.asset_service.get_asset_by_id(asset_id)
         self.widget.show_asset_detail(asset)
 
     def on_back_clicked(self, widget: QWidget):
