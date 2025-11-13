@@ -211,7 +211,18 @@ class Presenter(QWidget):
 
         return previews
 
-    def on_search_changed(self, text: str):
+    def on_search_changed(self, text: str, delay: int = 200) -> None:
+        if not hasattr(self, "_search_debounce_timer"):
+            from PySide6.QtCore import QTimer
+            self._search_debounce_timer = QTimer(self)
+            self._search_debounce_timer.setSingleShot(True)
+            self._search_debounce_timer.timeout.connect(self._trigger_search)
+
+        self._pending_search_text = text
+        self._search_debounce_timer.start(delay)
+
+    def _trigger_search(self):
+        text = getattr(self, "_pending_search_text", "")
         filtered_assets = self.asset_service.search_assets(text)
         self.widget.draw_previews(
             self._create_previews_list(filtered_assets))
