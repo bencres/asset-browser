@@ -23,6 +23,14 @@ class AssetService:
         except requests.exceptions.RequestException as e:
             print(f"Error getting asset with id {asset_id}: {e}")
 
+    def search_assets(self, text: str):
+        try:
+            response = requests.get(self.url + f"/assets/search?name={text}")
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error searching assets: {e}")
+
     def set_asset_directory(self, directory_path: str):
         """Update the asset directory and recreate the sync service."""
         self.asset_directory_path = pl.Path(directory_path)
