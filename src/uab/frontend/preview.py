@@ -255,7 +255,16 @@ class Preview(QWidget):
     def mousePressEvent(self, e):
         if e.button() == Qt.MouseButton.LeftButton:
             if self.image_container.geometry().contains(e.pos()):
-                self.asset_clicked.emit(self.asset_id)
+                # Check for command (mac) or control (win) modifier
+                modifiers = e.modifiers()
+                if (
+                    modifiers & Qt.KeyboardModifier.ControlModifier
+                    or modifiers & Qt.KeyboardModifier.MetaModifier
+                ):
+                    # Emit instantiate signal instead of selecting
+                    self.instantiate_requested.emit(self.asset_id)
+                else:
+                    self.asset_clicked.emit(self.asset_id)
         super().mousePressEvent(e)
 
     def mouseDoubleClickEvent(self, e):
