@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Optional
 
 from PySide6.QtCore import Signal, Qt
@@ -7,6 +8,8 @@ from PySide6.QtWidgets import (
     QLineEdit, QTextEdit, QPushButton, QScrollArea,
     QFrame, QSizePolicy
 )
+
+from uab.core import utils
 
 
 class Detail(QWidget):
@@ -42,7 +45,8 @@ class Detail(QWidget):
         # Scroll area for the content
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         # Content widget
         content_widget = QWidget()
@@ -67,7 +71,8 @@ class Detail(QWidget):
         self.btn_edit.clicked.connect(self._on_edit_clicked)
 
         self.btn_delete = QPushButton("Delete")
-        self.btn_delete.setToolTip("Remove asset from library (does not delete the file on your machine)")
+        self.btn_delete.setToolTip(
+            "Remove asset from library (does not delete the file on your machine)")
         self.btn_delete.setMaximumWidth(100)
         self.btn_delete.clicked.connect(self._on_delete_clicked)
 
@@ -105,7 +110,8 @@ class Detail(QWidget):
         self.preview_label.setMinimumSize(300, 300)
         self.preview_label.setMaximumSize(500, 500)
         self.preview_label.setScaledContents(False)
-        self.preview_label.setStyleSheet("border: 1px solid #555; background-color: #1a1a1a;")
+        self.preview_label.setStyleSheet(
+            "border: 1px solid #555; background-color: #1a1a1a;")
 
         preview_container.addWidget(self.preview_label)
         preview_container.addStretch()
@@ -123,7 +129,8 @@ class Detail(QWidget):
         name_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
         self.name_display = QLabel()
         self.name_display.setWordWrap(True)
-        self.name_display.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.name_display.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse)
 
         self.name_edit = QLineEdit()
         self.name_edit.setVisible(False)
@@ -139,7 +146,8 @@ class Detail(QWidget):
         path_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
         self.path_display = QLabel()
         self.path_display.setWordWrap(True)
-        self.path_display.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.path_display.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse)
         self.path_display.setStyleSheet("color: #888;")
 
         self.path_edit = QLineEdit()
@@ -156,7 +164,8 @@ class Detail(QWidget):
         desc_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
         self.desc_display = QLabel()
         self.desc_display.setWordWrap(True)
-        self.desc_display.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.desc_display.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse)
         self.desc_display.setMinimumHeight(60)
 
         self.desc_edit = QTextEdit()
@@ -174,7 +183,8 @@ class Detail(QWidget):
         tags_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
         self.tags_display = QLabel()
         self.tags_display.setWordWrap(True)
-        self.tags_display.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.tags_display.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse)
 
         self.tags_edit = QLineEdit()
         self.tags_edit.setVisible(False)
@@ -214,41 +224,19 @@ class Detail(QWidget):
         if not asset:
             return
 
-        # Load and display preview image
-        preview_path = asset.get('preview_image_file_path') or asset.get('directory_path', '')
-        if preview_path:
-            # Try to load preview from directory
-            import os
-            dir_path = preview_path if os.path.isdir(preview_path) else asset.get('directory_path', '')
-
-            if dir_path:
-                # Normalize path
-                norm = os.path.normpath(dir_path)
-                if not norm.startswith(os.sep):
-                    norm = os.sep + norm
-
-                # Try to find preview file
-                preview_file = None
-                for ext in ['.png', '.webp', '.jpg', '.jpeg']:
-                    candidate = os.path.join(norm, 'preview' + ext)
-                    if os.path.isfile(candidate):
-                        preview_file = candidate
-                        break
-
-                if preview_file:
-                    pixmap = QPixmap(preview_file)
-                    if not pixmap.isNull():
-                        # Scale the pixmap to fit the label while maintaining aspect ratio
-                        scaled_pixmap = pixmap.scaled(
-                            self.preview_label.size(),
-                            Qt.AspectRatioMode.KeepAspectRatio,
-                            Qt.TransformationMode.SmoothTransformation
-                        )
-                        self.preview_label.setPixmap(scaled_pixmap)
-                    else:
-                        self.preview_label.setText("Preview not available")
-                else:
-                    self.preview_label.setText("Preview not available")
+        # TODO: @thumbnail.py has a method that does exactly the same thing.
+        pixmap = QPixmap()
+        directory_path = Path(asset.get('directory_path', ''))
+        if directory_path:
+            byte_image = utils.hdr_to_preview(directory_path, as_bytes=True)
+            pixmap.loadFromData(byte_image)
+            if not pixmap.isNull():
+                scaled_pixmap = pixmap.scaled(
+                    self.preview_label.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                self.preview_label.setPixmap(scaled_pixmap)
             else:
                 self.preview_label.setText("Preview not available")
         else:
@@ -276,7 +264,8 @@ class Detail(QWidget):
         else:
             tags_str = str(tags) if tags else 'No tags'
         self.tags_display.setText(tags_str)
-        self.tags_edit.setText(', '.join(tags) if isinstance(tags, list) else str(tags))
+        self.tags_edit.setText(
+            ', '.join(tags) if isinstance(tags, list) else str(tags))
 
     def edit_metadata(self, asset: dict) -> None:
         """
@@ -347,7 +336,8 @@ class Detail(QWidget):
         self.back_clicked.emit()
 
     def _on_delete_clicked(self) -> None:
-        self.delete_clicked.emit(self.current_asset['id'] if self.current_asset else -1)
+        self.delete_clicked.emit(
+            self.current_asset['id'] if self.current_asset else -1)
 
     def _on_edit_clicked(self) -> None:
         """Handle edit button click."""
