@@ -1,4 +1,5 @@
-from typing import Optional
+from typing import Optional, Dict
+import os
 from PySide6.QtCore import Qt, QSize, QEvent, Signal, QPoint, QTimer
 from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtWidgets import (
@@ -12,6 +13,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QMenu,
 )
+from uab.core import utils
 
 
 class LargePreviewPopup(QDialog):
@@ -80,15 +82,14 @@ class Thumbnail(QWidget):
 
     def __init__(
         self,
-        asset_id: int,
-        thumbnail: Optional[QPixmap] = None,
-        asset_name: str = "",
+        asset: Dict,
         parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent)
-        self.asset_id = asset_id
-        self.asset_name = asset_name
-        self.thumbnail: QPixmap = thumbnail or QPixmap()
+        self.asset = asset
+        self.asset_id = asset.get('id')
+        self.asset_name = asset.get('name', '')
+        self.thumbnail: QPixmap = self._load_thumbnail()
         self.is_selected = False
         self._hover = False
         self._large_preview = LargePreviewPopup(self)
@@ -180,6 +181,27 @@ class Thumbnail(QWidget):
         self.vlayout.addWidget(self.text_container)
 
         self._update_pixmap_display()
+
+    def _load_thumbnail(self) -> QPixmap:
+        """Load thumbnail from asset's directory_path or preview_image_file_path."""
+        pixmap = QPixmap()
+        dir_path = self.asset.get('directory_path') or ''
+
+        # Normalize the directory path
+        norm = os.path.normpath(str(dir_path)) if dir_path else ''
+
+        # Check if directory_path is a .hdr file
+        if norm and norm.lower().endswith('.hdr') and os.path.isfile(norm):
+            try:
+                # Use hdr_to_preview to generate a tone-mapped preview
+                byte_image = utils.hdr_to_preview(norm, as_bytes=True)
+                # Convert PIL Image to QPixmap
+                pixmap.loadFromData(byte_image)
+            except Exception as e:
+                print(f"Error loading HDR preview for {norm}: {e}")
+                pixmap = QPixmap()
+
+        return pixmap
 
     # Events Handlers
 

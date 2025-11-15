@@ -1,11 +1,9 @@
 from PySide6.QtWidgets import QWidget
-from PySide6.QtGui import QPixmap
 import os
 from typing import Any, Dict, List
 
 from uab.frontend.thumbnail import Thumbnail
 from uab.backend.asset_service import AssetService
-from uab.core import utils
 
 
 class Presenter(QWidget):
@@ -16,7 +14,7 @@ class Presenter(QWidget):
         self.asset_service = AssetService(SERVER_URL, LOCAL_ASSETS_DIR)
         self.ROOT_ASSET_DIRECTORY = "Assets"
         self.assets = []
-        self.previews = []
+        self.thumbnails = []
         self.current_asset = None
 
         self.widget = view
@@ -127,8 +125,8 @@ class Presenter(QWidget):
         self.widget.show_message(
             f"Asset clicked: {self.current_asset['name']}", "info", 3000)
 
-    def get_preview_by_id(self, id: int) -> Thumbnail:
-        return next((p for p in self.previews if p.asset_id == id), None)
+    def get_thumbnail_by_id(self, id: int) -> Thumbnail:
+        return next((p for p in self.thumbnails if p.asset_id == id), None)
 
     def on_asset_thumbnail_double_clicked(self, asset_id: int):
         asset = self.asset_service.get_asset_by_id(asset_id)
@@ -154,14 +152,6 @@ class Presenter(QWidget):
     def _create_thumbnails_list(self, assets: list) -> List[Thumbnail]:
         """
         From a flat list of asset dicts, create a list of Thumbnail widgets.
-
-        Assumptions:
-        - Each asset has a 'directory_path' that either:
-          1. Points to a directory containing a preview file named 'preview' with 
-             one of the extensions: .png, .webp, .jpg, OR
-          2. Points directly to a .hdr file that will be tone-mapped to create a preview
-        - The asset's display name comes from asset['name']
-        - The asset id comes from asset['id'] (optional)
         """
         thumbnails: List[Thumbnail] = []
         if not assets:
@@ -170,30 +160,9 @@ class Presenter(QWidget):
         for asset in assets:
             if not isinstance(asset, dict):
                 continue
-            name = asset.get('name', '')
-            asset_id = asset.get('id')
-            dir_path = asset.get('directory_path') or ''
 
-            # Normalize the directory path
-            norm = os.path.normpath(str(dir_path)) if dir_path else ''
-
-            pixmap = QPixmap()
-
-            # Check if directory_path is a .hdr file
-            if norm and norm.lower().endswith('.hdr') and os.path.isfile(norm):
-                try:
-                    # Use hdr_to_preview to generate a tone-mapped preview
-                    byte_image = utils.hdr_to_preview(norm, as_bytes=True)
-                    # Convert PIL Image to QPixmap
-                    # First convert to bytes, then load into QPixmap
-                    pixmap.loadFromData(byte_image)
-                except Exception as e:
-                    print(f"Error loading HDR preview for {norm}: {e}")
-                    pixmap = QPixmap()
             asset_thumbnail = Thumbnail(
-                asset_id,
-                thumbnail=pixmap,
-                asset_name=name,
+                asset,
                 parent=None,
             )
             # Connect events
