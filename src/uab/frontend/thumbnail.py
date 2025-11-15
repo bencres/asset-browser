@@ -70,7 +70,7 @@ class LargePreviewPopup(QDialog):
             self.hide()
 
 
-class Preview(QWidget):
+class Thumbnail(QWidget):
     show_mini_details = Signal(int)
     asset_clicked = Signal(int)
     asset_double_clicked = Signal(int)
@@ -253,15 +253,14 @@ class Preview(QWidget):
         self._large_preview.schedule_hide()
 
     def mousePressEvent(self, e):
+        """QT LMB pressed event handler."""
         if e.button() == Qt.MouseButton.LeftButton:
             if self.image_container.geometry().contains(e.pos()):
-                # Check for command (mac) or control (win) modifier
                 modifiers = e.modifiers()
                 if (
                     modifiers & Qt.KeyboardModifier.ControlModifier
                     or modifiers & Qt.KeyboardModifier.MetaModifier
                 ):
-                    # Emit instantiate signal instead of selecting
                     self.instantiate_requested.emit(self.asset_id)
                 else:
                     self.asset_clicked.emit(self.asset_id)

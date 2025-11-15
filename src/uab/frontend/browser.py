@@ -11,18 +11,18 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QWheelEvent, QShowEvent
 from PySide6.QtCore import QEvent
 
-from uab.frontend.preview import Preview
+from uab.frontend.thumbnail import Thumbnail
 
 
 class Browser(QWidget):
     """
-    Styled Browser widget for displaying a grid of Preview widgets.
+    Styled Browser widget for displaying a grid of Thumbnail widgets.
 
     Features:
       - Dynamic resizing & reflow.
       - Ctrl + wheel = zoom centered on the mouse cursor.
       - No scrolling occurs while Ctrl is held.
-      - Clean updates when previews are added / removed.
+      - Clean updates when thumbnails are added / removed.
     """
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
@@ -69,7 +69,7 @@ class Browser(QWidget):
         # Install event filter on viewport to intercept wheel events
         self.scroll_area.viewport().installEventFilter(self)
 
-        self._previews: List[Preview] = []
+        self._previews: List[Thumbnail] = []
         self._cell_min_width = 180            # base cell size
         self._last_cols = 0                   # cache column count
         self._scale_factor = 1.0              # zoom level (1.0 = default)
@@ -77,8 +77,8 @@ class Browser(QWidget):
 
     # Public API
 
-    def refresh_previews(self, previews: List[Preview]) -> None:
-        """Rebuild grid when previews change."""
+    def refresh_previews(self, previews: List[Thumbnail]) -> None:
+        """Rebuild grid when thumbnails change."""
         self._previews = list(previews or [])
         self._draw_previews()
 
@@ -94,7 +94,7 @@ class Browser(QWidget):
                 w.deleteLater()
 
     def _draw_previews(self) -> None:
-        """Create or refresh visible previews."""
+        """Create or refresh visible thumbnails."""
         self._clear_grid()
 
         if not self._previews:
@@ -107,7 +107,7 @@ class Browser(QWidget):
         self._reflow_grid()
 
     def _reflow_grid(self) -> None:
-        """Re‑arrange previews according to scale and container width."""
+        """Re‑arrange thumbnails according to scale and container width."""
         for i in reversed(range(self.grid.count())):
             self.grid.takeAt(i)
 

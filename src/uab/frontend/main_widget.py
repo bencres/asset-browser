@@ -12,7 +12,7 @@ from uab.core.desktop_presenter import DesktopPresenter
 from uab.core.houdini_presenter import HoudiniPresenter
 from uab.frontend.browser import Browser
 from uab.frontend.detail import Detail
-from uab.frontend.preview import Preview
+from uab.frontend.thumbnail import Thumbnail
 from uab.frontend.toolbar import Toolbar
 from uab.frontend.mini_detail import MiniDetail
 from uab.frontend.status_bar import StatusBar
@@ -29,7 +29,6 @@ class MainWidget(QWidget):
     import_clicked = Signal(str)
     scan_clicked = Signal()
     delete_asset_clicked = Signal(int)
-    spawn_clicked = Signal()
 
     def __init__(self, dcc: str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -45,7 +44,6 @@ class MainWidget(QWidget):
         self.toolbar = Toolbar()
         self.toolbar.search_text_changed.connect(self._on_search_changed)
         self.toolbar.filter_changed.connect(self._on_filter_changed)
-        self.toolbar.spawn_clicked.connect(self._on_spawn_clicked)
         self.layout.addWidget(self.toolbar)
 
         # Main Splitter
@@ -150,17 +148,14 @@ class MainWidget(QWidget):
     def _on_delete_asset_clicked(self, asset_id: int) -> None:
         self.delete_asset_clicked.emit(asset_id)
 
-    def _on_spawn_clicked(self) -> None:
-        self.spawn_clicked.emit()
-
     def set_current_asset(self, asset: dict) -> None:
         self.current_asset = asset
 
-    def draw_previews(self, previews: list[Preview]) -> None:
+    def draw_previews(self, previews: list[Thumbnail]) -> None:
         self.current_previews = previews
         self.browser.refresh_previews(previews)
 
-    def set_new_selected_preview(self, preview: Preview) -> Preview:
+    def set_new_selected_preview(self, preview: Thumbnail) -> Thumbnail:
         if preview.is_selected:
             preview.set_selected(False)
             return preview

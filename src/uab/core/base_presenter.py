@@ -3,7 +3,7 @@ from PySide6.QtGui import QPixmap
 import os
 from typing import Any, Dict, List
 
-from uab.frontend.preview import Preview
+from uab.frontend.thumbnail import Thumbnail
 from uab.backend.asset_service import AssetService
 from uab.core import utils
 
@@ -127,7 +127,7 @@ class Presenter(QWidget):
         self.widget.show_message(
             f"Asset clicked: {self.current_asset['name']}", "info", 3000)
 
-    def get_preview_by_id(self, id: int) -> Preview:
+    def get_preview_by_id(self, id: int) -> Thumbnail:
         return next((p for p in self.previews if p.asset_id == id), None)
 
     def on_asset_preview_double_clicked(self, asset_id: int):
@@ -151,9 +151,9 @@ class Presenter(QWidget):
     def _load_assets(self):
         return self.asset_service.get_assets()
 
-    def _create_previews_list(self, assets: list) -> List[Preview]:
+    def _create_previews_list(self, assets: list) -> List[Thumbnail]:
         """
-        From a flat list of asset dicts, create a list of Preview widgets.
+        From a flat list of asset dicts, create a list of Thumbnail widgets.
 
         Assumptions:
         - Each asset has a 'directory_path' that either:
@@ -163,7 +163,7 @@ class Presenter(QWidget):
         - The asset's display name comes from asset['name']
         - The asset id comes from asset['id'] (optional)
         """
-        previews: List[Preview] = []
+        previews: List[Thumbnail] = []
         if not assets:
             return previews
 
@@ -190,7 +190,7 @@ class Presenter(QWidget):
                 except Exception as e:
                     print(f"Error loading HDR preview for {norm}: {e}")
                     pixmap = QPixmap()
-            asset_preview = Preview(
+            asset_preview = Thumbnail(
                 asset_id,
                 thumbnail=pixmap,
                 asset_name=name,
