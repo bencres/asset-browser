@@ -69,7 +69,7 @@ class Browser(QWidget):
         # Install event filter on viewport to intercept wheel events
         self.scroll_area.viewport().installEventFilter(self)
 
-        self._previews: List[Thumbnail] = []
+        self._thumbnails: List[Thumbnail] = []
         self._cell_min_width = 180            # base cell size
         self._last_cols = 0                   # cache column count
         self._scale_factor = 1.0              # zoom level (1.0 = default)
@@ -77,10 +77,10 @@ class Browser(QWidget):
 
     # Public API
 
-    def refresh_previews(self, previews: List[Thumbnail]) -> None:
+    def refresh_thumbnails(self, thumbnails: List[Thumbnail]) -> None:
         """Rebuild grid when thumbnails change."""
-        self._previews = list(previews or [])
-        self._draw_previews()
+        self._thumbnails = list[Thumbnail](thumbnails or [])
+        self._draw_thumbnails()
 
     # Grid management
 
@@ -93,15 +93,15 @@ class Browser(QWidget):
                 w.setParent(None)
                 w.deleteLater()
 
-    def _draw_previews(self) -> None:
+    def _draw_thumbnails(self) -> None:
         """Create or refresh visible thumbnails."""
         self._clear_grid()
 
-        if not self._previews:
+        if not self._thumbnails:
             self._show_empty_message()
             return
 
-        for p in self._previews:
+        for p in self._thumbnails:
             p.setParent(self.grid_container)
 
         self._reflow_grid()
@@ -116,7 +116,7 @@ class Browser(QWidget):
         size = int(self._cell_min_width * self._scale_factor)
         row, col = 0, 0
 
-        for p in self._previews:
+        for p in self._thumbnails:
             p.setFixedSize(QSize(size, size))
             p.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             self.grid.addWidget(p, row, col, Qt.AlignmentFlag.AlignTop)
@@ -125,7 +125,7 @@ class Browser(QWidget):
                 col = 0
                 row += 1
 
-        # Stretch to fill last row evenly (columns only, not rows)
+        # Stretch to fill last row evenly
         for i in range(cols):
             self.grid.setColumnStretch(i, 1)
 
@@ -137,7 +137,7 @@ class Browser(QWidget):
         # If viewport hasn't been laid out yet, return a reasonable default
         # This will be corrected when showEvent or resizeEvent fires
         if available <= 0:
-            # Estimate based on a typical window width (e.g., 1200px)
+            # Default to 1200px
             available = 1200
 
         spacing = self.grid.spacing()
@@ -183,7 +183,7 @@ class Browser(QWidget):
     def showEvent(self, event: QShowEvent):
         """Trigger reflow when widget is first shown to fix initial layout."""
         super().showEvent(event)
-        if not self._has_shown and self._previews:
+        if not self._has_shown and self._thumbnails:
             # Defer reflow to ensure layout is complete
             QTimer.singleShot(0, self._reflow_grid)
             self._has_shown = True
@@ -234,11 +234,9 @@ class Browser(QWidget):
         Handle wheel events that reach the Browser widget directly.
         Note: Most wheel events are intercepted by eventFilter on the viewport.
         """
-        # If Ctrl is held, handle zoom (though this shouldn't normally be reached
-        # since eventFilter should catch it first)
         if event.modifiers() & Qt.ControlModifier:
             self._handle_zoom(event)
             event.accept()
         else:
-            # Default wheel behavior if Ctrl isn't pressed
+            # Default behavior
             super().wheelEvent(event)

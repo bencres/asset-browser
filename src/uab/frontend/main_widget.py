@@ -33,7 +33,7 @@ class MainWidget(QWidget):
     def __init__(self, dcc: str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.current_asset = None
-        self.current_previews = []
+        self.current_thumbnails = []
 
         # Root layout
         self.layout = QVBoxLayout(self)
@@ -151,17 +151,17 @@ class MainWidget(QWidget):
     def set_current_asset(self, asset: dict) -> None:
         self.current_asset = asset
 
-    def draw_previews(self, previews: list[Thumbnail]) -> None:
-        self.current_previews = previews
-        self.browser.refresh_previews(previews)
+    def draw_thumbnails(self, thumbnails: list[Thumbnail]) -> None:
+        self.current_thumbnails = thumbnails
+        self.browser.refresh_thumbnails(thumbnails)
 
-    def set_new_selected_preview(self, preview: Thumbnail) -> Thumbnail:
-        if preview.is_selected:
-            preview.set_selected(False)
-            return preview
-        for p in self.current_previews:
-            if not p.asset_id == preview.asset_id:
-                p.set_selected(False)
+    def set_new_selected_thumbnail(self, thumbnail: Thumbnail) -> Thumbnail:
+        if thumbnail.is_selected:
+            thumbnail.set_selected(False)
+            return thumbnail
+        for p in self.current_thumbnails:
+            if not p.asset_id == thumbnail.asset_id:
+                thumbnail.set_selected(False)
             else:
-                p.set_selected(True)
-        return preview
+                thumbnail.set_selected(True)
+        return thumbnail

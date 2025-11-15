@@ -120,17 +120,17 @@ class Presenter(QWidget):
         asset = self.asset_service.get_asset_by_id(asset_id)
         self.widget.toggle_mini_detail(asset)
 
-    def on_asset_preview_clicked(self, asset_id: int) -> None:
-        preview = self.get_preview_by_id(asset_id)
+    def on_asset_thumbnail_clicked(self, asset_id: int) -> None:
+        thumbnail = self.get_thumbnail_by_id(asset_id)
         self.current_asset = self.asset_service.get_asset_by_id(asset_id)
-        self.widget.set_new_selected_preview(preview)
+        self.widget.set_new_selected_thumbnail(thumbnail)
         self.widget.show_message(
             f"Asset clicked: {self.current_asset['name']}", "info", 3000)
 
     def get_preview_by_id(self, id: int) -> Thumbnail:
         return next((p for p in self.previews if p.asset_id == id), None)
 
-    def on_asset_preview_double_clicked(self, asset_id: int):
+    def on_asset_thumbnail_double_clicked(self, asset_id: int):
         asset = self.asset_service.get_asset_by_id(asset_id)
         self.widget.show_asset_detail(asset)
 
@@ -145,13 +145,13 @@ class Presenter(QWidget):
 
     def _refresh_gui(self):
         self.assets = self._load_assets()
-        self.previews = self._create_previews_list(self.assets)
-        self.widget.draw_previews(self.previews)
+        self.thumbnails = self._create_thumbnails_list(self.assets)
+        self.widget.draw_thumbnails(self.thumbnails)
 
     def _load_assets(self):
         return self.asset_service.get_assets()
 
-    def _create_previews_list(self, assets: list) -> List[Thumbnail]:
+    def _create_thumbnails_list(self, assets: list) -> List[Thumbnail]:
         """
         From a flat list of asset dicts, create a list of Thumbnail widgets.
 
@@ -163,9 +163,9 @@ class Presenter(QWidget):
         - The asset's display name comes from asset['name']
         - The asset id comes from asset['id'] (optional)
         """
-        previews: List[Thumbnail] = []
+        thumbnails: List[Thumbnail] = []
         if not assets:
-            return previews
+            return thumbnails
 
         for asset in assets:
             if not isinstance(asset, dict):
@@ -190,22 +190,22 @@ class Presenter(QWidget):
                 except Exception as e:
                     print(f"Error loading HDR preview for {norm}: {e}")
                     pixmap = QPixmap()
-            asset_preview = Thumbnail(
+            asset_thumbnail = Thumbnail(
                 asset_id,
                 thumbnail=pixmap,
                 asset_name=name,
                 parent=None,
             )
             # Connect events
-            asset_preview.show_mini_details.connect(
+            asset_thumbnail.show_mini_details.connect(
                 self.on_asset_mini_detail_clicked)
-            asset_preview.asset_double_clicked.connect(
-                self.on_asset_preview_double_clicked)
-            asset_preview.asset_clicked.connect(
-                self.on_asset_preview_clicked)
-            previews.append(asset_preview)
+            asset_thumbnail.asset_double_clicked.connect(
+                self.on_asset_thumbnail_double_clicked)
+            asset_thumbnail.asset_clicked.connect(
+                self.on_asset_thumbnail_clicked)
+            thumbnails.append(asset_thumbnail)
 
-        return previews
+        return thumbnails
 
     def on_search_changed(self, text: str, delay: int = 200) -> None:
         if not hasattr(self, "_search_debounce_timer"):
@@ -220,8 +220,8 @@ class Presenter(QWidget):
     def _trigger_search(self):
         text = getattr(self, "_pending_search_text", "")
         filtered_assets = self.asset_service.search_assets(text)
-        self.widget.draw_previews(
-            self._create_previews_list(filtered_assets))
+        self.widget.draw_thumbnails(
+            self._create_thumbnails_list(filtered_assets))
         self.widget.show_browser()
 
     def on_filter_changed(self, text: str):
