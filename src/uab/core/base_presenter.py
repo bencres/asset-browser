@@ -36,10 +36,6 @@ class Presenter(QWidget):
         self.widget.import_clicked.connect(self.on_import_asset)
         self.widget.renderer_changed.connect(self.on_renderer_changed)
         self.widget.delete_asset_clicked.connect(self.on_delete_asset)
-        self.widget.spawn_clicked.connect(self.on_spawn_clicked)
-
-    def on_spawn_clicked(self):
-        self.spawn_asset(self.current_asset)
 
     def spawn_asset(self, asset: dict):
         # Implemented in derived classes

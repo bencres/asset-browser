@@ -17,7 +17,6 @@ class Toolbar(QWidget):
     scan_clicked = Signal()
     log_viewer_clicked = Signal()
     renderer_changed = Signal(str)
-    spawn_clicked = Signal()
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -75,10 +74,6 @@ class Toolbar(QWidget):
         self.btn_import = QPushButton("Import")
         self.btn_import.clicked.connect(self._on_import_clicked)
 
-        # Spawn button
-        self.btn_spawn = QPushButton("Spawn")
-        self.btn_spawn.clicked.connect(self._on_spawn_clicked)
-
         # Add widgets to layout
         layout.addWidget(self.search_bar, 1)  # Stretch factor 1
         layout.addWidget(filter_label)
@@ -87,7 +82,6 @@ class Toolbar(QWidget):
         layout.addWidget(self.cb_renderer)
         layout.addWidget(self.btn_import)
         layout.addStretch()
-        layout.addWidget(self.btn_spawn)
 
     def show_import_button(self):
         """Show the import button."""
@@ -99,10 +93,6 @@ class Toolbar(QWidget):
 
     def _scan_clicked(self):
         self.scan_clicked.emit()
-
-    def _on_spawn_clicked(self):
-        """Handle spawn button click."""
-        self.spawn_clicked.emit()
 
     def _apply_style(self):
         """Apply styling to the toolbar and its components."""
