@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QGraphicsDropShadowEffect,
     QDialog,
+    QMenu,
 )
 
 
@@ -73,6 +74,9 @@ class Preview(QWidget):
     show_mini_details = Signal(int)
     asset_clicked = Signal(int)
     asset_double_clicked = Signal(int)
+    open_image_requested = Signal(int)
+    reveal_in_file_system_requested = Signal(int)
+    instantiate_requested = Signal(int)
 
     def __init__(
         self,
@@ -259,6 +263,27 @@ class Preview(QWidget):
             if self.image_container.geometry().contains(e.pos()):
                 self.asset_double_clicked.emit(self.asset_id)
         super().mouseDoubleClickEvent(e)
+
+    def contextMenuEvent(self, e):
+        """Show context menu on right-click."""
+        menu = QMenu(self)
+
+        open_image_action = menu.addAction("Open Image")
+        open_image_action.triggered.connect(
+            lambda: self.open_image_requested.emit(self.asset_id)
+        )
+
+        reveal_action = menu.addAction("Reveal in File System")
+        reveal_action.triggered.connect(
+            lambda: self.reveal_in_file_system_requested.emit(self.asset_id)
+        )
+
+        instantiate_action = menu.addAction("Instantiate")
+        instantiate_action.triggered.connect(
+            lambda: self.instantiate_requested.emit(self.asset_id)
+        )
+
+        menu.exec(e.globalPos())
 
     def set_selected(self, selected: bool):
         self.is_selected = selected
