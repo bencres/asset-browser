@@ -73,7 +73,6 @@ class LargePreviewPopup(QDialog):
 
 
 class Thumbnail(QWidget):
-    show_mini_details = Signal(int)
     asset_clicked = Signal(int)
     asset_double_clicked = Signal(int)
     open_image_requested = Signal(int)
@@ -139,7 +138,7 @@ class Thumbnail(QWidget):
         self.label_icon.setScaledContents(False)
         img_layout.addWidget(self.label_icon)
 
-        # text/info row
+        # text
         self.text_container = QWidget()
         tlay = QHBoxLayout(self.text_container)
         tlay.setContentsMargins(0, 0, 0, 0)
@@ -155,28 +154,8 @@ class Thumbnail(QWidget):
             }
         """)
 
-        self.info_button = QPushButton("i")
-        self.info_button.setFixedSize(14, 14)
-        self.info_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.info_button.setToolTip("Show asset details")
-        self.info_button.clicked.connect(self._on_info_clicked)
-        self.info_button.setStyleSheet("""
-            QPushButton {
-                background-color: #3d3d3d;
-                color: #ddd;
-                border: 1px solid #595959;
-                font-size: 9pt;
-                border-radius: 6px;
-                padding: 0px;
-            }
-            QPushButton:hover {
-                background-color: #4a9eff; color: white;
-            }
-        """)
-
         tlay.addStretch(1)
         tlay.addWidget(self.label_text)
-        tlay.addWidget(self.info_button)
         tlay.addStretch(1)
         self.vlayout.addWidget(self.text_container)
 
@@ -368,9 +347,6 @@ class Thumbnail(QWidget):
                 }
             """)
             self.shadow.setEnabled(False)
-
-    def _on_info_clicked(self):
-        self.show_mini_details.emit(self.asset_id)
 
     def resizeEvent(self, e):
         super().resizeEvent(e)

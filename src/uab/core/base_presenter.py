@@ -80,10 +80,6 @@ class Presenter(QWidget):
         self.widget.show_message(
             f"Renderer changed to {renderer_text}", "info", 3000)
 
-    def on_asset_mini_detail_clicked(self, asset_id: int) -> None:
-        asset = self.asset_service.get_asset_by_id(asset_id)
-        self.widget.toggle_mini_detail(asset)
-
     def on_asset_thumbnail_clicked(self, asset_id: int) -> None:
         thumbnail = self.get_thumbnail_by_id(asset_id)
         self.current_asset = self.asset_service.get_asset_by_id(asset_id)
@@ -132,8 +128,6 @@ class Presenter(QWidget):
                 parent=None,
             )
             # Connect events
-            asset_thumbnail.show_mini_details.connect(
-                self.on_asset_mini_detail_clicked)
             asset_thumbnail.asset_double_clicked.connect(
                 self.on_asset_thumbnail_double_clicked)
             asset_thumbnail.asset_clicked.connect(
