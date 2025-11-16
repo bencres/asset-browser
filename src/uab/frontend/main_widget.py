@@ -155,8 +155,7 @@ class MainWidget(QWidget):
             thumbnail.set_selected(False)
             return thumbnail
         for p in self.current_thumbnails:
-            if not p.asset_id == thumbnail.asset_id:
-                thumbnail.set_selected(False)
-            else:
-                thumbnail.set_selected(True)
+            if p.asset_id != thumbnail.asset_id:
+                p.set_selected(False)
+        thumbnail.set_selected(True)
         return thumbnail
