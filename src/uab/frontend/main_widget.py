@@ -1,5 +1,3 @@
-from typing import Any, List
-
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QWidget,
@@ -7,7 +5,6 @@ from PySide6.QtWidgets import (
     QSplitter,
     QStackedWidget,
 )
-from uab.core.base_presenter import Presenter
 from uab.core.desktop_presenter import DesktopPresenter
 from uab.core.houdini_presenter import HoudiniPresenter
 from uab.frontend.browser import Browser

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget
 import os
-from typing import Any, Dict, List
+from typing import List
 
 from uab.frontend.thumbnail import Thumbnail
 from uab.backend.asset_service import AssetService
