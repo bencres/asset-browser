@@ -38,53 +38,64 @@ class Detail(QWidget):
 
     def _init_ui(self):
         """Initialize the UI components."""
-        # Main layout with scroll area
-        main_layout = QVBoxLayout(self)
+        main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
-        # Scroll area for the content
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
-        # Content widget
-        content_widget = QWidget()
-        content_layout = QVBoxLayout(content_widget)
-        content_layout.setContentsMargins(20, 20, 20, 20)
-        content_layout.setSpacing(15)
-
-        # Top buttons (Back, Edit, Save, Import)
-        button_layout = QHBoxLayout()
+        left_panel = QWidget()
+        left_layout = QVBoxLayout(left_panel)
+        left_layout.setContentsMargins(20, 20, 20, 20)
 
         self.btn_back = QPushButton("← Back")
         self.btn_back.setToolTip("Back to asset list")
         self.btn_back.setMaximumWidth(100)
         self.btn_back.clicked.connect(self._on_back_clicked)
 
-        button_layout.addWidget(self.btn_back)
-        button_layout.addStretch()
+        # Preview Image
+        self.preview_label = QLabel()
+        self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.preview_label.setScaledContents(False)
+        self.preview_label.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.preview_label.setStyleSheet(
+            "border: 1px solid #333; background-color: #0a0a0a; border-radius: 4px;")
+        left_layout.addWidget(self.preview_label, 1)
+
+        main_layout.addWidget(left_panel, 7)
+
+        right_panel = QWidget()
+        right_panel.setMinimumWidth(320)
+        right_panel.setMaximumWidth(450)
+
+        right_main_layout = QVBoxLayout(right_panel)
+        right_main_layout.setContentsMargins(
+            20, 20, 20, 20)
+        right_main_layout.setSpacing(0)
+
+        button_container = QWidget()
+        button_layout = QHBoxLayout(button_container)
+        button_layout.setContentsMargins(0, 0, 0, 0)
 
         self.btn_edit = QPushButton("Edit")
         self.btn_edit.setToolTip("Edit asset metadata")
-        self.btn_edit.setMaximumWidth(100)
+        self.btn_edit.setMaximumWidth(80)
         self.btn_edit.clicked.connect(self._on_edit_clicked)
 
         self.btn_delete = QPushButton("Delete")
         self.btn_delete.setToolTip(
             "Remove asset from library (does not delete the file on your machine)")
-        self.btn_delete.setMaximumWidth(100)
+        self.btn_delete.setMaximumWidth(80)
         self.btn_delete.clicked.connect(self._on_delete_clicked)
 
         self.btn_save = QPushButton("Save")
         self.btn_save.setToolTip("Save changes to asset metadata")
-        self.btn_save.setMaximumWidth(100)
+        self.btn_save.setMaximumWidth(80)
         self.btn_save.clicked.connect(self._on_save_clicked)
         self.btn_save.setVisible(False)
 
         self.btn_cancel = QPushButton("Cancel")
         self.btn_cancel.setToolTip("Cancel changes and return to asset list")
-        self.btn_cancel.setMaximumWidth(100)
+        self.btn_cancel.setMaximumWidth(80)
         self.btn_cancel.clicked.connect(self._on_cancel_clicked)
         self.btn_cancel.setVisible(False)
 
@@ -92,115 +103,147 @@ class Detail(QWidget):
         button_layout.addWidget(self.btn_delete)
         button_layout.addWidget(self.btn_save)
         button_layout.addWidget(self.btn_cancel)
+        button_layout.addStretch()
 
-        content_layout.addLayout(button_layout)
+        right_main_layout.addWidget(button_container)
 
-        # Separator
-        separator1 = QFrame()
-        separator1.setFrameShape(QFrame.Shape.HLine)
-        separator1.setFrameShadow(QFrame.Shadow.Sunken)
-        content_layout.addWidget(separator1)
+        # Scroll area for metadata fields
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll_area.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background-color: transparent;
+            }
+        """)
 
-        # Preview Image
-        preview_container = QHBoxLayout()
-        preview_container.addStretch()
-
-        self.preview_label = QLabel()
-        self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.preview_label.setMinimumSize(300, 300)
-        self.preview_label.setMaximumSize(500, 500)
-        self.preview_label.setScaledContents(False)
-        self.preview_label.setStyleSheet(
-            "border: 1px solid #555; background-color: #1a1a1a;")
-
-        preview_container.addWidget(self.preview_label)
-        preview_container.addStretch()
-        content_layout.addLayout(preview_container)
-
-        # Separator
-        separator2 = QFrame()
-        separator2.setFrameShape(QFrame.Shape.HLine)
-        separator2.setFrameShadow(QFrame.Shadow.Sunken)
-        content_layout.addWidget(separator2)
+        # Content widget for metadata fields
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(20)
 
         # Name field
         name_layout = QVBoxLayout()
-        name_label = QLabel("Name:")
-        name_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
+        name_layout.setSpacing(5)
+        name_label = QLabel("Name")
+        name_label.setStyleSheet(
+            "font-weight: bold; font-size: 11pt; color: #999;")
         self.name_display = QLabel()
         self.name_display.setWordWrap(True)
         self.name_display.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.name_display.setStyleSheet(
+            "font-size: 13pt; color: #e0e0e0; padding: 5px;")
 
         self.name_edit = QLineEdit()
         self.name_edit.setVisible(False)
+        self.name_edit.setStyleSheet("padding: 5px; font-size: 12pt;")
 
         name_layout.addWidget(name_label)
         name_layout.addWidget(self.name_display)
         name_layout.addWidget(self.name_edit)
         content_layout.addLayout(name_layout)
 
+        sep1 = QFrame()
+        sep1.setFrameShape(QFrame.Shape.HLine)
+        sep1.setStyleSheet("color: #333;")
+        content_layout.addWidget(sep1)
+
         # File Path field
         path_layout = QVBoxLayout()
-        path_label = QLabel("File Path:")
-        path_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
+        path_layout.setSpacing(5)
+        path_label = QLabel("File Path")
+        path_label.setStyleSheet(
+            "font-weight: bold; font-size: 11pt; color: #999;")
         self.path_display = QLabel()
         self.path_display.setWordWrap(True)
         self.path_display.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse)
-        self.path_display.setStyleSheet("color: #888;")
+        self.path_display.setStyleSheet(
+            "color: #888; padding: 5px; font-size: 10pt;")
 
         self.path_edit = QLineEdit()
         self.path_edit.setVisible(False)
+        self.path_edit.setStyleSheet("padding: 5px; font-size: 10pt;")
 
         path_layout.addWidget(path_label)
         path_layout.addWidget(self.path_display)
         path_layout.addWidget(self.path_edit)
         content_layout.addLayout(path_layout)
 
+        sep2 = QFrame()
+        sep2.setFrameShape(QFrame.Shape.HLine)
+        sep2.setStyleSheet("color: #333;")
+        content_layout.addWidget(sep2)
+
         # Description field
         desc_layout = QVBoxLayout()
-        desc_label = QLabel("Description:")
-        desc_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
+        desc_layout.setSpacing(5)
+        desc_label = QLabel("Description")
+        desc_label.setStyleSheet(
+            "font-weight: bold; font-size: 11pt; color: #999;")
         self.desc_display = QLabel()
         self.desc_display.setWordWrap(True)
         self.desc_display.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse)
         self.desc_display.setMinimumHeight(60)
+        self.desc_display.setStyleSheet(
+            "color: #ccc; padding: 5px; font-size: 11pt;")
 
         self.desc_edit = QTextEdit()
         self.desc_edit.setVisible(False)
-        self.desc_edit.setMaximumHeight(150)
+        self.desc_edit.setMinimumHeight(100)
+        self.desc_edit.setMaximumHeight(200)
+        self.desc_edit.setStyleSheet("padding: 5px; font-size: 11pt;")
 
         desc_layout.addWidget(desc_label)
         desc_layout.addWidget(self.desc_display)
         desc_layout.addWidget(self.desc_edit)
         content_layout.addLayout(desc_layout)
 
+        sep3 = QFrame()
+        sep3.setFrameShape(QFrame.Shape.HLine)
+        sep3.setStyleSheet("color: #333;")
+        content_layout.addWidget(sep3)
+
         # Tags field
         tags_layout = QVBoxLayout()
-        tags_label = QLabel("Tags:")
-        tags_label.setStyleSheet("font-weight: bold; font-size: 16pt;")
+        tags_layout.setSpacing(5)
+        tags_label = QLabel("Tags")
+        tags_label.setStyleSheet(
+            "font-weight: bold; font-size: 11pt; color: #999;")
         self.tags_display = QLabel()
         self.tags_display.setWordWrap(True)
         self.tags_display.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.tags_display.setStyleSheet(
+            "color: #ccc; padding: 5px; font-size: 11pt;")
 
         self.tags_edit = QLineEdit()
         self.tags_edit.setVisible(False)
         self.tags_edit.setPlaceholderText("Enter tags separated by commas")
+        self.tags_edit.setStyleSheet("padding: 5px; font-size: 11pt;")
 
         tags_layout.addWidget(tags_label)
         tags_layout.addWidget(self.tags_display)
         tags_layout.addWidget(self.tags_edit)
         content_layout.addLayout(tags_layout)
 
-        # Add stretch at the bottom
         content_layout.addStretch()
 
-        # Set the content widget to the scroll area
         scroll_area.setWidget(content_widget)
-        main_layout.addWidget(scroll_area)
+        right_main_layout.addWidget(scroll_area, 1)
+
+        # Back button at bottom right
+        back_button_layout = QHBoxLayout()
+        back_button_layout.addStretch()
+        back_button_layout.addWidget(self.btn_back)
+        right_main_layout.addLayout(back_button_layout)
+
+        main_layout.addWidget(right_panel, 3)
 
     def draw_details(self, asset: dict) -> None:
         """
@@ -227,20 +270,34 @@ class Detail(QWidget):
         # TODO: @thumbnail.py has a method that does exactly the same thing.
         pixmap = QPixmap()
         directory_path = Path(asset.get('directory_path', ''))
-        if directory_path:
-            byte_image = utils.hdr_to_preview(directory_path, as_bytes=True)
-            pixmap.loadFromData(byte_image)
+        if directory_path and directory_path.exists():
+            try:
+                byte_image = utils.hdr_to_preview(
+                    directory_path, as_bytes=True)
+                pixmap.loadFromData(byte_image)
+            except Exception as e:
+                print(f"Error loading preview: {e}")
+
             if not pixmap.isNull():
                 scaled_pixmap = pixmap.scaled(
-                    self.preview_label.size(),
+                    self.preview_label.width() - 40,
+                    self.preview_label.height() - 40,
                     Qt.AspectRatioMode.KeepAspectRatio,
                     Qt.TransformationMode.SmoothTransformation
                 )
                 self.preview_label.setPixmap(scaled_pixmap)
             else:
                 self.preview_label.setText("Preview not available")
+                self.preview_label.setStyleSheet(
+                    "border: 1px solid #333; background-color: #0a0a0a; "
+                    "border-radius: 4px; color: #666; font-size: 14pt;"
+                )
         else:
             self.preview_label.setText("Preview not available")
+            self.preview_label.setStyleSheet(
+                "border: 1px solid #333; background-color: #0a0a0a; "
+                "border-radius: 4px; color: #666; font-size: 14pt;"
+            )
 
         # Display name
         name = asset.get('name', 'Unnamed Asset')
