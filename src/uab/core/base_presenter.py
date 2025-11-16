@@ -30,7 +30,6 @@ class Presenter(QWidget):
     def bind_events(self):
         self.widget.search_text_changed.connect(self.on_search_changed)
         self.widget.filter_changed.connect(self.on_filter_changed)
-        self.widget.scan_clicked.connect(self.on_scan_clicked)
         self.widget.import_clicked.connect(self.on_import_asset)
         self.widget.renderer_changed.connect(self.on_renderer_changed)
         self.widget.delete_asset_clicked.connect(self.on_delete_asset)
@@ -38,29 +37,6 @@ class Presenter(QWidget):
     def spawn_asset(self, asset: dict):
         # Implemented in derived classes
         pass
-
-    def on_scan_clicked(self):
-        self.widget.show_message("Starting sync operation...", "info")
-
-        sync_result = self.asset_service.sync()
-
-        self._refresh_gui()
-        self.widget.show_browser()
-
-        # Show completion message in status bar
-        summary = sync_result.get_summary()
-        if summary['error_count'] > 0:
-            self.widget.show_message(
-                f"Sync completed with {summary['error_count']} errors",
-                "warning",
-                10000
-            )
-        else:
-            self.widget.show_message(
-                f"Sync completed successfully - {summary['assets_posted']} assets posted",
-                "success",
-                5000
-            )
 
     def on_import_asset(self, asset_path):
         if not asset_path:
@@ -103,16 +79,6 @@ class Presenter(QWidget):
     def on_renderer_changed(self, renderer_text: str):
         self.widget.show_message(
             f"Renderer changed to {renderer_text}", "info", 3000)
-
-    def on_log_viewer_clicked(self):
-        """Show log viewer with most recent sync results."""
-        last_result = self.asset_service.sync_service.get_last_sync_result()
-
-        if last_result:
-            self.widget.show_log_viewer(last_result)
-        else:
-            self.widget.show_message(
-                "No sync logs available. Run a scan first.", "warning", 3000)
 
     def on_asset_mini_detail_clicked(self, asset_id: int) -> None:
         asset = self.asset_service.get_asset_by_id(asset_id)

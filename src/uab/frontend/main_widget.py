@@ -27,7 +27,6 @@ class MainWidget(QWidget):
     filter_changed = Signal(str)
     renderer_changed = Signal(str)
     import_clicked = Signal(str)
-    scan_clicked = Signal()
     delete_asset_clicked = Signal(int)
 
     def __init__(self, dcc: str, parent: QWidget | None = None) -> None:
@@ -49,7 +48,7 @@ class MainWidget(QWidget):
         # Main Splitter
         self.main_splitter = QSplitter()
 
-        # Stacked (browser/detail/log)
+        # Stacked (browser/detail)
         self.stacked = QStackedWidget()
         self.browser = Browser()
         self.detail = Detail()
@@ -79,7 +78,6 @@ class MainWidget(QWidget):
         self.detail.back_clicked.connect(self.show_browser)
         self.detail.delete_clicked.connect(self._on_delete_asset_clicked)
         self.toolbar.import_asset_selected.connect(self._on_import_clicked)
-        self.toolbar.scan_clicked.connect(self._on_scan_clicked)
         self.toolbar.renderer_changed.connect(self._on_renderer_changed)
         self.mini_detail.close_clicked.connect(self.hide_mini_detail)
 
@@ -141,9 +139,6 @@ class MainWidget(QWidget):
 
     def _on_import_clicked(self, asset_path: str) -> None:
         self.import_clicked.emit(asset_path)
-
-    def _on_scan_clicked(self) -> None:
-        self.scan_clicked.emit()
 
     def _on_delete_asset_clicked(self, asset_id: int) -> None:
         self.delete_asset_clicked.emit(asset_id)
